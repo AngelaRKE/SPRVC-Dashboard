@@ -1,9 +1,9 @@
-[CONTROL] AUC-ROC en test SIN variables de recencia (26 variables de comportamiento): 0.5082
-[CONTROL] AUC-ROC en test CON dias_sin_comprar (fuga: la etiqueta es una regla de esa variable): 1.0000
-[CONTROL] AUC univariado de antiguedad_meses: 0.500
-[CONTROL] AUC univariado de num_compras: 0.511
-[CONTROL] AUC univariado de gasto_mensual_usd: 0.499
-[CONTROL] AUC univariado de quejas: 0.504
-[CONTROL] AUC univariado de devoluciones: 0.494
-[CONTROL] AUC univariado de satisfaccion: 0.507
-[CONTROL] AUC univariado de tasa_apertura_correos: 0.501
+[CONTROL] AUC-ROC en test SIN variables de recencia (26 variables de comportamiento): 0.8421
+[CONTROL] AUC-ROC en test CON dias_sin_comprar (recencia incluida como referencia): 0.9211
+[CONTROL] AUC univariado de antiguedad_meses: 0.492
+[CONTROL] AUC univariado de num_compras: 0.470
+[CONTROL] AUC univariado de gasto_mensual_usd: 0.477
+[CONTROL] AUC univariado de quejas: 0.631
+[CONTROL] AUC univariado de devoluciones: 0.649
+[CONTROL] AUC univariado de satisfaccion: 0.228 (señal inversa: 0.772)
+[CONTROL] AUC univariado de tasa_apertura_correos: 0.498

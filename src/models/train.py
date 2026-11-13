@@ -33,7 +33,7 @@ from sklearn.metrics import (average_precision_score, confusion_matrix, f1_score
                              classification_report, accuracy_score)
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, StratifiedKFold, cross_val_predict
 
-OBJETIVO = "abandono"   # 1 = Inactive (90 o más días sin comprar), construido en src/data/preprocess_real.py
+OBJETIVO = "abandono"   # 1 = Riesgo de abandono (Medium/High/Very High en churn_risk_category), construido en src/data/preprocess_real.py
 
 SEED = 42
 META_RECALL = 0.60      # meta O3 del informe de diseño: recall de la clase abandono >= 60%
@@ -99,8 +99,8 @@ def main() -> None:
     feats = json.loads((salida / "meta.json").read_text())["features"]   # variables definidas por preprocess_real.py
     tr, te = df[df.split == "train"], df[df.split == "test"]
     scaler = joblib.load(salida / "scaler.joblib")                       # ajustado solo con train en preprocess_real.py
-    Xtr, ytr = scaler.transform(tr[feats].values), tr[OBJETIVO].values
-    Xte, yte = scaler.transform(te[feats].values), te[OBJETIVO].values
+    Xtr, ytr = scaler.transform(tr[feats]), tr[OBJETIVO].values
+    Xte, yte = scaler.transform(te[feats]), te[OBJETIVO].values
     log(f"[INFO] Conjunto Train: {len(tr):,} muestras | Conjunto Test: {len(te):,} muestras")
     log(f"[INFO] Tasa de abandono: train {ytr.mean():.1%} | test {yte.mean():.1%} | variables: {len(feats)}")
     cv = StratifiedKFold(5, shuffle=True, random_state=SEED)
@@ -149,11 +149,11 @@ def main() -> None:
 
     # Exp 4: Random Forest ajustado (poda y regularización por hojas mínimas)
     log(f"[INFO] Exp 4 - Ajustando Random Forest (RandomizedSearchCV, {a.rf_iter} combinaciones x 5 folds)...")
-    espacio = {"n_estimators": [200, 300, 500], "max_depth": [3, 4, 5, 6, 8, 10],
+    espacio = {"n_estimators": [150, 200, 300], "max_depth": [4, 6, 8, 10, 12],
                "min_samples_leaf": [5, 10, 20, 40], "max_features": ["sqrt", 0.5, 0.8],
                "class_weight": [None, "balanced_subsample"]}
-    rs = RandomizedSearchCV(RandomForestClassifier(random_state=SEED, n_jobs=1), espacio, n_iter=a.rf_iter,
-                            scoring="roc_auc", cv=cv, n_jobs=-1, random_state=SEED)
+    rs = RandomizedSearchCV(RandomForestClassifier(random_state=SEED, n_jobs=-1), espacio, n_iter=a.rf_iter,
+                            scoring="roc_auc", cv=cv, n_jobs=1, random_state=SEED)
     rs.fit(Xtr, ytr)
     bp = rs.best_params_
     m = RandomForestClassifier(random_state=SEED, n_jobs=-1, **bp)
