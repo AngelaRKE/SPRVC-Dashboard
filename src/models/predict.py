@@ -75,6 +75,42 @@ def _factores(x_scaled: np.ndarray, top: int = 3) -> list[str]:
     return [FEATURES[i] for i in orden if aporte[i] > 0]
 
 
+def _nivel_riesgo(prob: float) -> str:
+    """Clasifica el riesgo de forma coherente con el umbral operativo del modelo."""
+    if prob < UMBRAL:
+        return "Bajo"
+    umbral_alto = min(0.85, max(0.50, UMBRAL + 0.15))
+    return "Alto" if prob >= umbral_alto else "Medio"
+
+
+def recomendar_retencion(entrada: dict, resultado: dict | None = None) -> list[str]:
+    """Sugiere técnicas accionables de retención según los impulsores de riesgo del cliente."""
+    res = resultado if resultado is not None else predecir(entrada)
+    if res.get("status") != "success":
+        return []
+    if res["clase_predicha"] == 0:
+        return ["Mantener comunicación habitual y beneficios regulares del programa de lealtad."]
+
+    acciones: list[str] = []
+    compras = max(float(entrada.get("num_compras", 0)), 1.0)
+    satisfaccion = float(entrada["satisfaccion"])
+    quejas = float(entrada["quejas"])
+    devoluciones = float(entrada["devoluciones"])
+    apertura = float(entrada["tasa_apertura_correos"])
+
+    if satisfaccion <= 2.5 or quejas >= 8 or (quejas / compras) >= 0.15:
+        acciones.append("Escalar a soporte prioritario (< 24 h), contactar proactivamente y ofrecer bono de compensación.")
+    if devoluciones >= 10 or (devoluciones / compras) >= 0.20:
+        acciones.append("Activar asesoría de compra/tallas, revisar calidad del pedido y simplificar cambios sin costo.")
+    if apertura < 0.20:
+        acciones.append("Cambiar canal de contacto (SMS/WhatsApp/App push) con incentivo personalizado de reactivación.")
+    if float(entrada["gasto_mensual_usd"]) >= 500:
+        acciones.append("Asignar atención VIP personalizada para proteger el valor de vida del cliente (CLV).")
+    if not acciones:
+        acciones.append("Enviar encuesta breve de pulso y cupón de fidelización preventiva.")
+    return acciones
+
+
 def predecir(entrada: dict) -> dict:
     """Recibe las variables de un cliente (dict plano del formulario) y devuelve la inferencia estructurada.
 
@@ -92,14 +128,19 @@ def predecir(entrada: dict) -> dict:
         x_scaled = SCALER.transform(_fila(entrada))                 # mismo preprocesamiento que en entrenamiento
         prob = float(MODELO.predict_proba(x_scaled)[0][1])
         clase = int(prob >= UMBRAL)
+        advertencia = (
+            f"Modelo con AUC en test {CONFIG['auc_test']:.2f}: la señal de comportamiento es débil."
+            if CONFIG["auc_test"] < 0.75
+            else ""
+        )
         return {
             "clase_predicha": clase,
             "etiqueta": "Riesgo de Cancelación" if clase == 1 else "Cliente Fiel",
             "probabilidad_abandono": round(prob * 100, 2),
-            "nivel_riesgo": "Alto" if prob >= 0.35 else "Medio" if prob >= UMBRAL else "Bajo",
+            "nivel_riesgo": _nivel_riesgo(prob),
             "factores_principales": _factores(x_scaled) if clase == 1 else [],
             "umbral_usado": round(UMBRAL, 3),
-            "advertencia": f"Modelo con AUC en test {CONFIG['auc_test']:.2f}: la señal de comportamiento es débil.",
+            "advertencia": advertencia,
             "status": "success",
         }
     except Exception as exc:  # el dashboard nunca debe romperse por una entrada inesperada
@@ -110,6 +151,8 @@ if __name__ == "__main__":
     ejemplo = {"antiguedad_meses": 14, "num_compras": 6, "ticket_promedio_usd": 85.0, "gasto_mensual_usd": 36.4,
                "quejas": 3, "devoluciones": 2, "satisfaccion": 2.1, "tasa_apertura_correos": 0.05,
                "tasa_clics": 0.01, "tasa_conversion": 0.02, "canal": "Online", "dispositivo": "Mobile", "lealtad": "Bronze"}
+    res = predecir(ejemplo)
     print("Entrada:", json.dumps(ejemplo, ensure_ascii=False))
-    print("Salida: ", json.dumps(predecir(ejemplo), indent=2, ensure_ascii=False))
+    print("Salida: ", json.dumps(res, indent=2, ensure_ascii=False))
+    print("Acciones recomendadas:", json.dumps(recomendar_retencion(ejemplo, res), ensure_ascii=False))
     print("Error controlado:", predecir({"antiguedad_meses": 14}))

@@ -13,7 +13,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 if str(RAIZ) not in sys.path:
     sys.path.insert(0, str(RAIZ))
 
-from src.models.predict import predecir  # noqa: E402
+from src.models.predict import predecir, recomendar_retencion  # noqa: E402
 
 CLIENTE_VALIDO = {
     "antiguedad_meses": 14, "num_compras": 6, "ticket_promedio_usd": 85.0, "gasto_mensual_usd": 36.4,
@@ -68,6 +68,27 @@ class TestEntradaValida(unittest.TestCase):
 
     def test_num_compras_cero_no_divide_entre_cero(self):
         self.assertEqual(predecir(_cliente(num_compras=0))["status"], "success")
+
+    def test_nivel_riesgo_coherente_con_clase(self):
+        bajo = predecir(_cliente(satisfaccion=4.6, quejas=1, devoluciones=1))
+        alto = predecir(_cliente(satisfaccion=1.5, quejas=12, devoluciones=10))
+        self.assertEqual(bajo["clase_predicha"], 0)
+        self.assertEqual(bajo["nivel_riesgo"], "Bajo")
+        self.assertEqual(alto["clase_predicha"], 1)
+        self.assertIn(alto["nivel_riesgo"], ("Medio", "Alto"))
+        self.assertGreater(alto["probabilidad_abandono"], bajo["probabilidad_abandono"])
+
+    def test_sin_advertencia_cuando_auc_supera_meta(self):
+        self.assertEqual(predecir(CLIENTE_VALIDO)["advertencia"], "")
+
+    def test_recomendar_retencion(self):
+        cliente_riesgo = _cliente(satisfaccion=1.8, quejas=10, devoluciones=12, gasto_mensual_usd=600.0)
+        r_riesgo = predecir(cliente_riesgo)
+        acciones = recomendar_retencion(cliente_riesgo, r_riesgo)
+        self.assertGreaterEqual(len(acciones), 3)
+        r_fiel = predecir(_cliente(satisfaccion=4.6, quejas=1, devoluciones=1))
+        self.assertEqual(len(recomendar_retencion(_cliente(satisfaccion=4.6, quejas=1, devoluciones=1), r_fiel)), 1)
+        self.assertEqual(recomendar_retencion({}), [])
 
 
 class TestFaltantes(unittest.TestCase):

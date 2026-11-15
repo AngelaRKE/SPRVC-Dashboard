@@ -3,5 +3,6 @@ __pycache__/
 *.zip
 data/processed/
 data/raw/
+data/real/
 .venv/
 .DS_Store

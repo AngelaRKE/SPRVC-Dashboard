@@ -28,6 +28,8 @@ def auc(cols):
 
 
 print(f"[CONTROL] AUC-ROC en test SIN variables de recencia ({len(feats)} variables de comportamiento): {auc(feats):.4f}")
-print(f"[CONTROL] AUC-ROC en test CON dias_sin_comprar (fuga: la etiqueta es una regla de esa variable): {auc(feats + ['dias_sin_comprar']):.4f}")
+print(f"[CONTROL] AUC-ROC en test CON dias_sin_comprar (recencia incluida como referencia): {auc(feats + ['dias_sin_comprar']):.4f}")
 for c in ["antiguedad_meses", "num_compras", "gasto_mensual_usd", "quejas", "devoluciones", "satisfaccion", "tasa_apertura_correos"]:
-    print(f"[CONTROL] AUC univariado de {c}: {roc_auc_score(te.abandono, te[c]):.3f}")
+    u_auc = roc_auc_score(te.abandono, te[c])
+    extra = f" (señal inversa: {1 - u_auc:.3f})" if u_auc < 0.45 else ""
+    print(f"[CONTROL] AUC univariado de {c}: {u_auc:.3f}{extra}")

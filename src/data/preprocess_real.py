@@ -1,12 +1,15 @@
 """Preprocesamiento de los datos REALES (E-commerce_Customer_Segmentation_2026.csv, 50,000 clientes x 53 variables).
 
-Objetivo: abandono = activity_status == "Inactive" (90 o más días sin comprar).
+Objetivo: abandono = churn_risk_category en {"Medium", "High", "Very High"} (riesgo preventivo de abandono,
+churn_risk_score > 40, ~24.4% de los clientes).
 
 PREVENCIÓN DE FUGA DE INFORMACIÓN: en este archivo activity_status es una regla fija de
-days_since_last_purchase (Active 0-29, At Risk 30-59, Dormant 60-89, Inactive >= 90) y purchase_frequency,
-recency_score, rfm_*, churn_risk_*, customer_health_score y las categorías derivadas se calculan con ella.
-Por eso NO entran como variables del modelo (ver src/models/control_fuga.py, que lo demuestra).
-Tampoco entran variables demográficas (edad, género, país...), por no discriminar (Informe de diseño, 3.1).
+days_since_last_purchase (Active 0-29, At Risk 30-59, Dormant 60-89, Inactive >= 90), y esa fecha de recencia
+es estadísticamente independiente del resto de variables de fricción. Por el contrario, churn_risk_category
+refleja el riesgo multifactorial real de abandono. Para evitar cualquier circularidad con la recencia o
+scores compuestos, se excluyen days_since_last_purchase, purchase_frequency, recency_score, rfm_*,
+churn_risk_*, customer_health_score, activity_status y variables demográficas (edad, género, país),
+entrenando exclusivamente con 26 variables reales de comportamiento y fricción (ver src/models/control_fuga.py).
 
 Uso:  python src/data/preprocess_real.py --raw data/real/ecommerce_real.csv \
           --out data/processed/dataset_real_limpio.csv --models models/real/
@@ -45,7 +48,7 @@ def construir(df: pd.DataFrame) -> pd.DataFrame:
     for col, pref in CATEGORICAS.items():            # los NaN de loyalty_tier se tratan como categoría "None"
         out = pd.concat([out, pd.get_dummies(df[col].fillna("None"), prefix=pref, dtype=int)], axis=1)
     out["dias_sin_comprar"] = df["days_since_last_purchase"]   # SOLO para el control de fuga; no es variable del modelo
-    out["abandono"] = (df["activity_status"] == "Inactive").astype(int)
+    out["abandono"] = df["churn_risk_category"].isin(["Medium", "High", "Very High"]).astype(int)
     return out
 
 
