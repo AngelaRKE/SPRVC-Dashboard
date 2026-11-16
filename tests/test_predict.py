@@ -85,10 +85,24 @@ class TestEntradaValida(unittest.TestCase):
         cliente_riesgo = _cliente(satisfaccion=1.8, quejas=10, devoluciones=12, gasto_mensual_usd=600.0)
         r_riesgo = predecir(cliente_riesgo)
         acciones = recomendar_retencion(cliente_riesgo, r_riesgo)
-        self.assertGreaterEqual(len(acciones), 3)
+        self.assertGreaterEqual(len(acciones), 2)
         r_fiel = predecir(_cliente(satisfaccion=4.6, quejas=1, devoluciones=1))
         self.assertEqual(len(recomendar_retencion(_cliente(satisfaccion=4.6, quejas=1, devoluciones=1), r_fiel)), 1)
         self.assertEqual(recomendar_retencion({}), [])
+
+
+class TestFactoresYRetencion(unittest.TestCase):
+    def test_factores_son_direccionales(self):
+        r = predecir(_cliente(satisfaccion=1.0, quejas=14, devoluciones=20, num_compras=60, gasto_mensual_usd=800.0))
+        self.assertEqual(r["clase_predicha"], 1)
+        self.assertIn("satisfaccion", r["factores_principales"])
+        alto = predecir(_cliente(satisfaccion=5.0, quejas=14, devoluciones=20, num_compras=60, gasto_mensual_usd=800.0))
+        self.assertNotIn("satisfaccion", alto["factores_principales"])
+
+    def test_retencion_no_incluye_regla_de_apertura(self):
+        acciones = recomendar_retencion(_cliente(satisfaccion=1.0, quejas=14, devoluciones=20, num_compras=60,
+                                                 tasa_apertura_correos=0.01, gasto_mensual_usd=800.0))
+        self.assertFalse(any("SMS" in a for a in acciones))
 
 
 class TestFaltantes(unittest.TestCase):
