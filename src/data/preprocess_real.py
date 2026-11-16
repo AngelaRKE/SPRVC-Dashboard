@@ -3,10 +3,13 @@
 Objetivo: abandono = churn_risk_category en {"Medium", "High", "Very High"} (riesgo preventivo de abandono,
 churn_risk_score > 40, ~24.4% de los clientes).
 
+DECISIÓN DE DISEÑO: se excluye la recencia como entrada (con ella el AUC sube de ~0.84 a ~0.92, ver control_fuga.py)
+para que el modelo se base en comportamiento y fricción accionables y no en el simple tiempo sin comprar.
+
 PREVENCIÓN DE FUGA DE INFORMACIÓN: en este archivo activity_status es una regla fija de
 days_since_last_purchase (Active 0-29, At Risk 30-59, Dormant 60-89, Inactive >= 90), y esa fecha de recencia
 es estadísticamente independiente del resto de variables de fricción. Por el contrario, churn_risk_category
-refleja el riesgo multifactorial real de abandono. Para evitar cualquier circularidad con la recencia o
+refleja el riesgo multifactorial real de abandono. Por esa decisión de diseño y para evitar circularidad con
 scores compuestos, se excluyen days_since_last_purchase, purchase_frequency, recency_score, rfm_*,
 churn_risk_*, customer_health_score, activity_status y variables demográficas (edad, género, país),
 entrenando exclusivamente con 26 variables reales de comportamiento y fricción (ver src/models/control_fuga.py).
