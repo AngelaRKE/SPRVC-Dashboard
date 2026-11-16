@@ -1,6 +1,7 @@
 """Control de fuga de información sobre los datos reales.
 
-Entrena una regresión logística con y sin las variables que revelan la etiqueta y reporta el AUC en test.
+Entrena una regresión logística con y sin la recencia (dias_sin_comprar) y reporta el AUC en test, junto con el
+AUC univariado de variables clave (se marca la señal inversa cuando AUC < 0.45, p. ej. satisfacción).
 Uso:  python src/models/control_fuga.py --data data/processed/dataset_real_limpio.csv --models models/real/
 """
 import argparse
