@@ -66,13 +66,17 @@ def _fila(entrada: dict) -> pd.DataFrame:
 
 
 def _factores(x_scaled: np.ndarray, top: int = 3) -> list[str]:
-    """Variables que más empujan la predicción hacia abandono (coeficiente x valor, o importancia x desviación)."""
-    if hasattr(MODELO, "coef_"):
-        aporte = MODELO.coef_[0] * x_scaled[0]
-    else:
-        aporte = MODELO.feature_importances_ * np.abs(x_scaled[0])
+    """Variables que más empujan la predicción HACIA abandono.
+
+    Aporte local = P(abandono) - P(abandono) con esa variable en su promedio de train (0 en espacio escalado).
+    Es direccional: una satisfacción alta reduce el riesgo y nunca aparece como factor de riesgo.
+    """
+    base = float(MODELO.predict_proba(x_scaled)[0][1])
+    variantes = np.repeat(x_scaled, len(FEATURES), axis=0)
+    variantes[np.arange(len(FEATURES)), np.arange(len(FEATURES))] = 0.0
+    aporte = base - MODELO.predict_proba(variantes)[:, 1]
     orden = np.argsort(aporte)[::-1][:top]
-    return [FEATURES[i] for i in orden if aporte[i] > 0]
+    return [FEATURES[i] for i in orden if aporte[i] > 0.005]
 
 
 def _nivel_riesgo(prob: float) -> str:
@@ -83,8 +87,19 @@ def _nivel_riesgo(prob: float) -> str:
     return "Alto" if prob >= umbral_alto else "Medio"
 
 
+# Umbrales calibrados con los percentiles del dataset (p75 de toda la base y cuartiles de los clientes en riesgo);
+# así cada acción se activa solo en una fracción de los clientes y no en la mayoría.
+SAT_BAJA = 2.0                     # satisfacción <= 2 (mediana de los clientes en riesgo)
+QUEJAS_ALTAS, QUEJAS_RATIO = 11, 0.14          # p75 de quejas y de quejas por compra
+DEVOL_ALTAS, DEVOL_RATIO = 15, 0.19            # p75 de devoluciones y de devoluciones por compra
+GASTO_VIP = 1670.0                 # p75 del gasto mensual (USD)
+
+
 def recomendar_retencion(entrada: dict, resultado: dict | None = None) -> list[str]:
-    """Sugiere técnicas accionables de retención según los impulsores de riesgo del cliente."""
+    """Sugiere técnicas accionables de retención según los impulsores de riesgo del cliente.
+
+    Solo usa variables con señal real en el modelo (satisfacción, quejas, devoluciones) más el valor del cliente.
+    """
     res = resultado if resultado is not None else predecir(entrada)
     if res.get("status") != "success":
         return []
@@ -96,15 +111,12 @@ def recomendar_retencion(entrada: dict, resultado: dict | None = None) -> list[s
     satisfaccion = float(entrada["satisfaccion"])
     quejas = float(entrada["quejas"])
     devoluciones = float(entrada["devoluciones"])
-    apertura = float(entrada["tasa_apertura_correos"])
 
-    if satisfaccion <= 2.5 or quejas >= 8 or (quejas / compras) >= 0.15:
+    if satisfaccion <= SAT_BAJA or quejas >= QUEJAS_ALTAS or (quejas / compras) >= QUEJAS_RATIO:
         acciones.append("Escalar a soporte prioritario (< 24 h), contactar proactivamente y ofrecer bono de compensación.")
-    if devoluciones >= 10 or (devoluciones / compras) >= 0.20:
+    if devoluciones >= DEVOL_ALTAS or (devoluciones / compras) >= DEVOL_RATIO:
         acciones.append("Activar asesoría de compra/tallas, revisar calidad del pedido y simplificar cambios sin costo.")
-    if apertura < 0.20:
-        acciones.append("Cambiar canal de contacto (SMS/WhatsApp/App push) con incentivo personalizado de reactivación.")
-    if float(entrada["gasto_mensual_usd"]) >= 500:
+    if float(entrada["gasto_mensual_usd"]) >= GASTO_VIP:
         acciones.append("Asignar atención VIP personalizada para proteger el valor de vida del cliente (CLV).")
     if not acciones:
         acciones.append("Enviar encuesta breve de pulso y cupón de fidelización preventiva.")
@@ -148,9 +160,9 @@ def predecir(entrada: dict) -> dict:
 
 
 if __name__ == "__main__":
-    ejemplo = {"antiguedad_meses": 14, "num_compras": 6, "ticket_promedio_usd": 85.0, "gasto_mensual_usd": 36.4,
-               "quejas": 3, "devoluciones": 2, "satisfaccion": 2.1, "tasa_apertura_correos": 0.05,
-               "tasa_clics": 0.01, "tasa_conversion": 0.02, "canal": "Online", "dispositivo": "Mobile", "lealtad": "Bronze"}
+    ejemplo = {"antiguedad_meses": 30, "num_compras": 60, "ticket_promedio_usd": 400.0, "gasto_mensual_usd": 800.0,
+               "quejas": 12, "devoluciones": 16, "satisfaccion": 1.8, "tasa_apertura_correos": 0.45,
+               "tasa_clics": 0.2, "tasa_conversion": 0.1, "canal": "Online", "dispositivo": "Mobile", "lealtad": "Bronze"}
     res = predecir(ejemplo)
     print("Entrada:", json.dumps(ejemplo, ensure_ascii=False))
     print("Salida: ", json.dumps(res, indent=2, ensure_ascii=False))
