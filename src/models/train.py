@@ -86,7 +86,7 @@ def main() -> None:
     ap.add_argument("--data", default="data/processed/dataset_real_limpio.csv")
     ap.add_argument("--output", default="models/real/")
     ap.add_argument("--reports", default="reports/real/")
-    ap.add_argument("--rf-iter", type=int, default=30)
+    ap.add_argument("--rf-iter", type=int, default=5)
     a = ap.parse_args()
     warnings.filterwarnings("ignore")
     salida, rep = Path(a.output), Path(a.reports)
