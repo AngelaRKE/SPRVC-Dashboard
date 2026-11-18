@@ -49,14 +49,19 @@ El backend **no cambia la lógica del modelo**: solo llama a las funciones del e
 - `api.js`: las 3 llamadas al backend (`fetch`).
 - `calculos.js`: fórmulas de ingreso, CLV y escenario (las mismas del prototipo de la Entrega 1).
 - `App.jsx`: carga los datos, guarda el estado compartido (vista, escenario, filtros, tema) y dibuja el menú.
-- `componentes/`: una vista por archivo.
+- `componentes/`: una vista por archivo, más el detalle del cliente (`DetalleCliente.jsx`) y el panel
+  "Acerca de" (`AcercaDe.jsx`).
 
 | Vista | Para quién | Qué muestra |
 | --- | --- | --- |
-| 1. Tendencias predictivas | Dirección Comercial, Ventas | Ingreso esperado, clientes en riesgo, escenario de retención y desempeño del modelo |
+| 1. Tendencias predictivas | Dirección Comercial, Ventas | Ingreso esperado, clientes en riesgo y escenario de retención |
 | 2. Segmentos | Marketing | Clientes, ingresos y riesgo por segmento |
-| 3. Clientes en riesgo | Marketing, Servicio al Cliente | Lista priorizada con factores y acciones, detalle del cliente y exportación a CSV |
-| 4. Evaluar un cliente | Todas | Formulario que manda un cliente nuevo al modelo y muestra el resultado |
+| 3. Clientes en riesgo | Marketing, Servicio al Cliente | Lista priorizada por ingreso en juego, con factores y acciones, detalle del cliente y exportación a CSV |
+| 4. Evaluar un cliente | Todas | Formulario agrupado (perfil, compras, servicio y correos) que manda un cliente nuevo al modelo y muestra el resultado |
+
+**Panel "Acerca de"** (botón en la barra superior): información de referencia que no hace falta en el uso
+diario. Incluye los datos usados, el desempeño del modelo (AUC, recall, precisión, F1 y matriz de confusión),
+cómo se calculan los valores y los créditos del equipo.
 
 ## Decisiones a tener en cuenta
 - **Clientes mostrados:** solo los del conjunto de prueba, para que las predicciones sean honestas.
@@ -66,5 +71,10 @@ El backend **no cambia la lógica del modelo**: solo llama a las funciones del e
   antigüedad tienen un gasto mensual enorme (todo su gasto dividido entre 1). El modelo recibe el valor original.
 - **Segmentos:** se usa la columna `customer_segment` del dataset. Los 4 tienen un riesgo casi igual (24 a 25%),
   así que el riesgo lo explica el comportamiento y no el tipo de cliente. K-Means queda como mejora futura.
-- **Prioridad de la lista:** probabilidad × gasto del cliente, es decir, a quién conviene contactar primero
-  por lo que se perdería.
+- **Prioridad de la lista:** se ordena por **ingreso en juego** (probabilidad × gasto mensual × 3), que es lo
+  que se perdería el próximo trimestre si el cliente se va. Esa columna se ve en la tabla, así que el orden
+  se puede comprobar.
+- **Tasas de correo en porcentaje:** en "Evaluar un cliente" la apertura, los clics y la conversión se
+  escriben de 0 a 100. El frontend las divide entre 100 antes de mandarlas, porque el modelo las espera de 0 a 1.
+  El navegador valida los rangos (satisfacción de 1 a 5, porcentajes de 0 a 100, sin negativos).
+- **Montos:** las cifras grandes se muestran en formato corto ($34.0M); al pasar el mouse se ve el monto exacto.
