@@ -503,3 +503,12 @@ td.fuerte{font-weight:700}
 .fct-t{font-size:14px;color:var(--mut);white-space:nowrap}
 @media (max-width:1440px){.fct-t{white-space:normal;min-width:150px}}
 @media (max-width:640px){.fct-t{white-space:normal}.etqs{flex-wrap:wrap}}
+
+/* ----- barra de desplazamiento con los colores del tema ----- */
+:root{--sb:color-mix(in srgb,var(--mut) 40%,transparent);--sb-h:color-mix(in srgb,var(--mut) 70%,transparent)}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--sb);border-radius:999px;border:3px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:var(--sb-h);background-clip:padding-box}
+::-webkit-scrollbar-corner{background:transparent}
+@supports (-moz-appearance:none){*{scrollbar-width:thin;scrollbar-color:var(--sb) transparent}}
