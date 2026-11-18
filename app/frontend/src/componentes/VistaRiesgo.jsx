@@ -1,7 +1,7 @@
 // Vista 3: lista priorizada de clientes a contactar, con factores y acciones (Marketing y Servicio al Cliente).
 import { useMemo, useState } from 'react'
 import { Icono } from './Iconos'
-import { accionCorta, acciones, clv12, colorSeg, f0, nivel, pct, perdida, prob, suma, usd } from '../calculos'
+import { accionCorta, acciones, clv12, colorSeg, f0, nivel, pct, perdida, prob, suma, usd, usdCorto } from '../calculos'
 
 const ORDEN_TXT = { pc: 'ingreso en juego', p: 'probabilidad de abandono', c: 'CLV a 12 meses' }
 
@@ -87,7 +87,7 @@ export default function VistaRiesgo({ datos, modelo, f, estrella, abrir, filtros
         <div className="g sum">
           <div className="c"><b>{f0(lista.length)}</b><small>clientes en la lista</small></div>
           <div className="c"><b>{f0(altos)}</b><small>con riesgo alto (≥ {pct(modelo.umbral_alto)})</small></div>
-          <div className="c"><b>{usd(suma(lista, (c) => clv12(c, f)))}</b><small>CLV a 12 meses de la lista</small></div>
+          <div className="c"><b data-tip={usd(suma(lista, (c) => clv12(c, f)))}>{usdCorto(suma(lista, (c) => clv12(c, f)))}</b><small>CLV a 12 meses de la lista</small></div>
         </div>
 
         <details className="c impw" style={{ boxShadow: 'none' }}>

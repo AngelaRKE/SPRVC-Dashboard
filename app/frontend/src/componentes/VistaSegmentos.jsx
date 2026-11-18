@@ -1,7 +1,7 @@
 // Vista 2: qué segmentos concentran clientes, ingresos y riesgo (Marketing).
 import { useMemo } from 'react'
 import { Icono } from './Iconos'
-import { clv12, colorSeg, f0, ingresoQ1, nivel, prob, suma, usd } from '../calculos'
+import { clv12, colorSeg, f0, ingresoQ1, nivel, prob, suma, usd, usdCorto } from '../calculos'
 
 const DESCRIPCION = {
   Consumidor: 'Clientes individuales',
@@ -136,7 +136,7 @@ export default function VistaSegmentos({ datos, modelo, f, estrella }) {
                       data-tip={`<b>${S[k]}</b><br>${usd(x.ingreso)} | ${x.ing.toFixed(1)}% de los ingresos`} />
                   })}
                 </svg>
-                <div className="rc"><div><b>{usd(st[0].total)}</b><small>próximo trimestre</small></div></div>
+                <div className="rc"><div><b data-tip={usd(st[0].total)}>{usdCorto(st[0].total)}</b><small>próximo trimestre</small></div></div>
               </div>
               <div className="dl">
                 {st.map((x, k) => (

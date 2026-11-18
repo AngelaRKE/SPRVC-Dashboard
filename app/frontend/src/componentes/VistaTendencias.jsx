@@ -115,9 +115,8 @@ export default function VistaTendencias({ datos, modelo, f, escenario, setEscena
                 <div className="rc"><div><b className="num">{Math.round(fr * 100)}%</b><small>en riesgo</small></div></div>
               </div>
               <div className="rinfo">
-                <div className="big">{f0(m.enRiesgo)} <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--mut)' }}>de {f0(N)} clientes</span></div>
-                <p>con probabilidad de abandono ≥ {pct(modelo.umbral)}</p>
-                <div className="big">{usd(m.L)}</div>
+                <div className="big" style={{ marginBottom: 14 }}>{f0(m.enRiesgo)} <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--mut)' }}>de {f0(N)} clientes</span></div>
+                <div className="big" data-tip={usd(m.L)}>{usdCorto(m.L)}</div>
                 <p style={{ marginBottom: 0 }}>ingreso en juego por abandono el próximo trimestre</p>
               </div>
             </div>
@@ -136,13 +135,13 @@ export default function VistaTendencias({ datos, modelo, f, escenario, setEscena
             </div>
             <div className="cmp">
               {[['Sin acciones', base.A, 'var(--lo-dot)'], ['Con escenario', m.A, 'var(--pri)']].map(([l, v, col]) => (
-                <div className="cr" key={l}><span>{l}</span><div className="ct"><div style={{ width: (v / mx) * 100 + '%', background: col }} /></div><b>{usd(v)}</b></div>
+                <div className="cr" key={l}><span>{l}</span><div className="ct"><div style={{ width: (v / mx) * 100 + '%', background: col }} /></div><b data-tip={usd(v)}>{usdCorto(v)}</b></div>
               ))}
             </div>
             {activo && (
               <div className="res" aria-live="polite">
                 <span className="ck"><Icono id="i-check" /></span>
-                <span>El ingreso esperado del próximo trimestre sube <b>{usd(m.A - base.A)}</b> (+{((m.A / base.A - 1) * 100).toFixed(1)}%) y <b>{f0(base.enRiesgo - m.enRiesgo)}</b> clientes salen del riesgo.</span>
+                <span>El ingreso esperado del próximo trimestre sube <b>{usdCorto(m.A - base.A)}</b> (+{((m.A / base.A - 1) * 100).toFixed(1)}%) y <b>{f0(base.enRiesgo - m.enRiesgo)}</b> clientes salen del riesgo.</span>
               </div>
             )}
           </div>
