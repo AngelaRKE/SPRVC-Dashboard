@@ -114,7 +114,7 @@ export default function VistaSegmentos({ datos, modelo, f, estrella }) {
             <div className="ins">
               Los cuatro segmentos tienen un riesgo muy parecido ({Math.round(Math.min(...st.map((x) => x.rk)))}% a {Math.round(Math.max(...st.map((x) => x.rk)))}%):
               el tipo de cliente casi no cambia el riesgo. Lo que lo explica es el comportamiento (satisfacción, quejas y devoluciones),
-              por eso la lista de la vista 3 se arma cliente por cliente.
+              por eso la lista de clientes en riesgo se arma cliente por cliente.
             </div>
           </div>
         </details>

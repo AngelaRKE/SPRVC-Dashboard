@@ -8,7 +8,6 @@ export default function DetalleCliente({ cliente: c, cerrar, datos, modelo, f, e
   const btnCerrar = useRef(null)
   const p = prob(c, f)
   const lvl = nivel(p, modelo)
-  const predicho = c.p >= modelo.umbral ? 1 : 0
 
   // Cerrar con Escape y poner el foco en el botón de cerrar
   useEffect(() => {
@@ -75,10 +74,6 @@ export default function DetalleCliente({ cliente: c, cerrar, datos, modelo, f, e
               <div><small>Apertura de correos</small><b>{pct(v.tasa_apertura_correos)}</b></div>
               <div><small>Canal</small><b>{v.canal}</b></div>
               <div><small>Dispositivo</small><b>{v.dispositivo}</b></div>
-            </div>
-            <div className="real">
-              En los datos este cliente está <b>{c.real ? 'en riesgo' : 'sin riesgo'}</b>; el modelo
-              {predicho === c.real ? ' acertó.' : ' se equivocó en este caso.'}
             </div>
           </div>
         </div>

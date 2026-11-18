@@ -33,7 +33,6 @@ export default function App() {
   const [tema, setTema] = useState(() => {
     try { return localStorage.getItem('sprvc-tema') || 'dark' } catch { return 'dark' }
   })
-  const [aviso, setAviso] = useState('')
 
   // 1. Al abrir la página se piden los datos al backend
   useEffect(() => {
@@ -77,12 +76,6 @@ export default function App() {
     return () => { document.removeEventListener('mouseover', sobre); document.removeEventListener('mousemove', mover) }
   }, [])
 
-  useEffect(() => {
-    if (!aviso) return
-    const t = setTimeout(() => setAviso(''), 3200)
-    return () => clearTimeout(t)
-  }, [aviso])
-
   const cerrarDetalle = useCallback(() => setAbierto(null), [])
   const cerrarAcerca = useCallback(() => setAcerca(false), [])
   const f = 1 - escenario / 100                           // factor del escenario
@@ -98,16 +91,6 @@ export default function App() {
     })
     return prom.indexOf(Math.max(...prom))
   }, [datos])
-
-  function irAArea(area) {
-    if (area === 'dir' || area === 'ven') { setVista('t1'); setAviso('Dirección Comercial y Ventas: ingresos esperados y escenario de retención.') }
-    if (area === 'mkt') { setVista('t2'); setAviso('Marketing: segmentos y dónde está el valor.') }
-    if (area === 'sac') {
-      setFiltros({ seg: 'all', minimo: Math.round(modelo.umbral_alto * 100), orden: 'pc' })
-      setVista('t3')
-      setAviso('Servicio al Cliente: clientes con riesgo alto para contactar primero.')
-    }
-  }
 
   const props = { datos, modelo, f, escenario, estrella, abrir: setAbierto }
 
@@ -126,7 +109,10 @@ export default function App() {
               {VISTAS.map((v, i) => (
                 <button key={v.id} role="tab" aria-selected={vista === v.id} onClick={() => setVista(v.id)}>
                   <span className="nn">{i + 1}</span>
-                  <span className="nt"><span className="lg-n">{v.titulo}</span><span className="sh-n">{v.corto}</span></span>
+                  <span className="nt">
+                    <span className="lg-n">{v.titulo}</span><span className="sh-n">{v.corto}</span>
+                    <span className="ns">{v.para}</span>
+                  </span>
                 </button>
               ))}
             </div>
@@ -137,22 +123,12 @@ export default function App() {
           <header className="topbar">
             <h1>{actual.titulo}</h1>
             <div className="acts">
-              <span className="selw">
-                <select value="" onChange={(e) => e.target.value && listo && irAArea(e.target.value)} aria-label="Ir a la vista de mi área">
-                  <option value="">Mi área…</option>
-                  <option value="dir">Dirección Comercial</option>
-                  <option value="ven">Ventas</option>
-                  <option value="mkt">Marketing</option>
-                  <option value="sac">Servicio al Cliente</option>
-                </select>
-                <Icono id="i-chevd" />
-              </span>
               {listo && (
-                <button className="ib" type="button" onClick={() => setAcerca(true)}>
+                <button className="ib" type="button" aria-label="Acerca de" onClick={() => setAcerca(true)}>
                   <Icono id="i-info" /><span className="lbl">Acerca de</span>
                 </button>
               )}
-              <button className="ib" type="button" onClick={() => setTema(tema === 'dark' ? 'light' : 'dark')}>
+              <button className="ib" type="button" aria-label={tema === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'} onClick={() => setTema(tema === 'dark' ? 'light' : 'dark')}>
                 <Icono id={tema === 'dark' ? 'i-sun' : 'i-moon'} />
                 <span className="lbl">{tema === 'dark' ? 'Claro' : 'Oscuro'}</span>
               </button>
@@ -173,7 +149,8 @@ export default function App() {
                 {escenario > 0 && vista !== 't4' && (
                   <div className="scn" role="status">
                     <Icono id="i-spark" />
-                    <span>Escenario de retención activo: <b>riesgo de abandono −{escenario}%</b>. Las vistas 1 a 3 ya lo incluyen.</span>
+                    <span>Escenario activo: <b>riesgo de abandono −{escenario}%</b></span>
+                    <button className="ib scn-x" type="button" onClick={() => setEscenario(0)}>Quitar</button>
                   </div>
                 )}
                 {vista === 't1' && <VistaTendencias {...props} setEscenario={setEscenario} />}
@@ -189,7 +166,6 @@ export default function App() {
       {acerca && <AcercaDe cerrar={cerrarAcerca} datos={datos} modelo={modelo} msCarga={msCarga} />}
       {abierto && <DetalleCliente cliente={abierto} cerrar={cerrarDetalle} {...props} />}
       <div className="tip" ref={tipRef} role="tooltip" hidden />
-      <div className={'toast' + (aviso ? ' on' : '')} role="status" aria-live="polite">{aviso}</div>
     </>
   )
 }

@@ -28,6 +28,15 @@ export default function VistaEvaluar() {
   const [form, setForm] = useState(EJEMPLOS.riesgo)
   const [res, setRes] = useState(null)
   const [cargando, setCargando] = useState(false)
+  const [ejemplo, setEjemplo] = useState('riesgo')      // ejemplo cargado en el formulario
+
+  // Alterna entre el ejemplo de cliente en riesgo y el de cliente fiel
+  function cargarEjemplo() {
+    const siguiente = ejemplo === 'riesgo' ? 'fiel' : 'riesgo'
+    setEjemplo(siguiente)
+    setForm(EJEMPLOS[siguiente])
+    setRes(null)
+  }
 
   const poner = (k, v) => setForm({ ...form, [k]: v })
 
@@ -79,8 +88,7 @@ export default function VistaEvaluar() {
         </div>
         <div className="frm-a">
           <button className="btn" type="submit" disabled={cargando}><Icono id="i-play" />{cargando ? 'Evaluando…' : 'Evaluar cliente'}</button>
-          <button className="ib" type="button" onClick={() => { setForm(EJEMPLOS.riesgo); setRes(null) }}>Ejemplo en riesgo</button>
-          <button className="ib" type="button" onClick={() => { setForm(EJEMPLOS.fiel); setRes(null) }}>Ejemplo fiel</button>
+          <button className="ib" type="button" onClick={cargarEjemplo}>Cargar ejemplo</button>
         </div>
       </form>
 
