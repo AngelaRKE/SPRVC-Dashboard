@@ -490,3 +490,16 @@ details:not([open])>*:not(summary){display:none}.mfoot{display:block}
 .ad-eq em{font-style:normal;color:var(--mut);font-size:14px;display:block}
 .dr .metr{grid-template-columns:repeat(2,minmax(0,1fr))}
 .scn-x{height:32px;padding:0 12px;margin-left:auto}
+/* ----- tabla de clientes en riesgo (compacta) ----- */
+@media (min-width:641px){.tw th,.tw td{padding:10px 12px;vertical-align:middle}.tw table{min-width:900px}}
+.idb{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:14px;font-weight:600}
+.niv{display:block;font-size:13px;color:var(--mut);padding-left:16px;line-height:1.3}
+td.fuerte{font-weight:700}
+.etqs{display:flex;flex-wrap:nowrap;gap:4px;align-items:center}
+.etq{font-size:13px;line-height:1.4;padding:2px 8px;border-radius:6px;background:var(--soft);white-space:nowrap}
+.etq.acc{background:var(--pri-s);color:var(--tx);border:1px solid color-mix(in srgb,var(--pri) 45%,transparent)}
+@media (max-width:640px){.niv{display:inline;padding-left:8px}}
+.etq.mas-acc{color:var(--mut);font-weight:600;cursor:default}
+.fct-t{font-size:14px;color:var(--mut);white-space:nowrap}
+@media (max-width:1440px){.fct-t{white-space:normal;min-width:150px}}
+@media (max-width:640px){.fct-t{white-space:normal}.etqs{flex-wrap:wrap}}

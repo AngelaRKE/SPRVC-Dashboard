@@ -31,6 +31,19 @@ export function acciones(c, f, datos, modelo) {
   return c.a.map((i) => datos.acciones[i])
 }
 
+// Nombre corto de cada acción para la tabla (el texto completo se ve en el detalle y en el tooltip)
+const ACCIONES_CORTAS = [
+  ['Escalar a soporte', 'Soporte prioritario'],
+  ['Activar asesoría', 'Asesoría de compra'],
+  ['Asignar atención VIP', 'Atención VIP'],
+  ['Enviar encuesta', 'Encuesta y cupón'],
+  ['Mantener comunicación', 'Seguimiento habitual'],
+]
+export function accionCorta(texto) {
+  const par = ACCIONES_CORTAS.find(([inicio]) => texto.startsWith(inicio))
+  return par ? par[1] : texto
+}
+
 // Formatos
 export const f0 = (n) => Math.round(n).toLocaleString('en-US')
 export const usd = (n) => '$' + f0(n)

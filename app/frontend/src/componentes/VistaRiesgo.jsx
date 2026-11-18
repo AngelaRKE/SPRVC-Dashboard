@@ -1,9 +1,20 @@
 // Vista 3: lista priorizada de clientes a contactar, con factores y acciones (Marketing y Servicio al Cliente).
 import { useMemo, useState } from 'react'
 import { Icono } from './Iconos'
-import { acciones, clv12, colorSeg, f0, nivel, pct, prob, suma, usd } from '../calculos'
+import { accionCorta, acciones, clv12, colorSeg, f0, nivel, pct, perdida, prob, suma, usd } from '../calculos'
 
-const ORDEN_TXT = { pc: 'probabilidad × valor del cliente', p: 'probabilidad de abandono', c: 'CLV a 12 meses' }
+const ORDEN_TXT = { pc: 'ingreso en juego', p: 'probabilidad de abandono', c: 'CLV a 12 meses' }
+
+// Acción principal visible; las demás se ven al pasar el mouse sobre "+N"
+function Acciones({ lista }) {
+  const [principal, ...resto] = lista
+  return (
+    <span className="etqs">
+      <span className="etq acc" data-tip={principal}>{accionCorta(principal)}</span>
+      {resto.length > 0 && <span className="etq mas-acc" data-tip={resto.join('<br><br>')}>+{resto.length}</span>}
+    </span>
+  )
+}
 
 export const Pastilla = ({ p, modelo }) => <span className={'pill ' + nivel(p, modelo)}><i />{pct(p)}</span>
 
@@ -100,7 +111,7 @@ export default function VistaRiesgo({ datos, modelo, f, estrella, abrir, filtros
             <span>Ordenar por</span>
             <span className="selw">
               <select value={orden} onChange={(e) => cambiar({ orden: e.target.value })}>
-                <option value="pc">Prioridad (probabilidad × valor)</option>
+                <option value="pc">Prioridad (ingreso en juego)</option>
                 <option value="p">Probabilidad de abandono</option>
                 <option value="c">CLV 12 m</option>
               </select>
@@ -112,18 +123,28 @@ export default function VistaRiesgo({ datos, modelo, f, estrella, abrir, filtros
         <div className="tw">
           <table>
             <thead>
-              <tr><th className="r">#</th><th>Cliente</th><th>Segmento y nivel</th><th>Prob. de abandono</th><th className="r">CLV 12 m</th><th>Factores principales</th><th>Acción sugerida</th></tr>
+              <tr>
+                <th className="r">#</th><th>Cliente</th><th>Segmento</th><th>Riesgo</th>
+                <th className="r" data-tip="Ingreso que se perdería el próximo trimestre si el cliente se va:<br>probabilidad × gasto mensual × 3">En juego</th>
+                <th className="r">CLV 12 m</th><th>Factores</th><th>Acciones</th>
+              </tr>
             </thead>
             <tbody>
               {lista.slice(0, cuantos).map((c, i) => (
                 <tr key={c.id} onClick={() => abrir(c)}>
                   <td className="r" data-l="Prioridad">{i + 1}</td>
                   <td data-l="Cliente"><button type="button" className="idb">{c.id}</button></td>
-                  <td data-l="Segmento"><span><span className="sgt"><i style={{ background: colorSeg(c.s) }} />{datos.segmentos[c.s]}</span><div className="sub">{c.t}</div></span></td>
+                  <td data-l="Segmento">
+                    <span>
+                      <span className="sgt"><i style={{ background: colorSeg(c.s) }} />{datos.segmentos[c.s]}</span>
+                      <span className="niv">{c.t}</span>
+                    </span>
+                  </td>
                   <td data-l="Prob. de abandono"><Pastilla p={prob(c, f)} modelo={modelo} /></td>
+                  <td className="r fuerte" data-l="En juego">{usd(perdida(c, f))}</td>
                   <td className="r" data-l="CLV 12 m">{usd(clv12(c, f))}</td>
-                  <td data-l="Factores">{c.f.length ? <ol className="fct">{c.f.map((j) => <li key={j}>{datos.factores[j]}</li>)}</ol> : '—'}</td>
-                  <td className="rc" data-l="Acción">{acciones(c, f, datos, modelo)[0]}</td>
+                  <td className="fct-t" data-l="Factores">{c.f.length ? c.f.map((j) => datos.factores[j]).join(', ') : '—'}</td>
+                  <td data-l="Acciones"><Acciones lista={acciones(c, f, datos, modelo)} /></td>
                 </tr>
               ))}
               {!lista.length && <tr><td colSpan="7" className="empty">Ningún cliente cumple estos filtros. Baja la probabilidad mínima o elige otro segmento.</td></tr>}
