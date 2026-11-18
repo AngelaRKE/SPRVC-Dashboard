@@ -535,3 +535,24 @@ td.fuerte{font-weight:700}
 .grp:hover .bar.q1{filter:brightness(1.1)}
 .vl{font-size:13px;color:var(--mut);font-weight:600}
 .grp:hover .vl{color:var(--tx)}
+
+/* ----- formulario de Evaluar agrupado ----- */
+.grp-f{border:0;padding:0;margin:20px 0 0;min-width:0}
+.grp-f legend{float:left;width:100%;padding:0;margin-bottom:10px;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
+.grp-f+.grp-f{border-top:1px solid var(--bd);padding-top:18px}
+.grp-f .frm{clear:both}
+.frm.tres{grid-template-columns:repeat(3,minmax(0,1fr))}
+.frm label>span:first-child{color:var(--tx)}
+.inp{position:relative;display:block}
+.inp input{width:100%;padding-right:62px}
+.inp small{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--mut);pointer-events:none}
+.frm input:invalid{border-color:var(--hi-dot)}
+.ev .ch-h{align-items:center}
+.ev .ch-h .ib{height:36px}
+.ev .frm-a{border-top:1px solid var(--bd);padding-top:18px;margin-top:22px}
+.resu{position:sticky;top:96px}
+.vacio{display:grid;justify-items:center;gap:6px;text-align:center;padding:48px 12px}
+.vacio p{margin:0}
+.vacio-i{width:36px;height:36px;color:var(--pri)}
+@media (max-width:1100px){.resu{position:static}}
+@media (max-width:640px){.frm.tres{grid-template-columns:minmax(0,1fr)}}
