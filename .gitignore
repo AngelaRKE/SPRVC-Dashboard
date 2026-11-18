@@ -9,3 +9,4 @@ data/real/
 node_modules/
 app/frontend/dist/
 probar.py
+app/frontend/.vite/
