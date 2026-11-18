@@ -66,11 +66,10 @@ export default function VistaRiesgo({ datos, modelo, f, estrella, abrir, filtros
           <div>
             <label className="fl-l" htmlFor="fr">Probabilidad mínima: <b style={{ color: 'var(--tx)' }}>{minimo}%</b></label>
             <input id="fr" type="range" min="10" max="95" value={minimo} onChange={(e) => cambiar({ minimo: +e.target.value })} />
-            <div className="hint">El modelo marca "en riesgo" desde {pct(modelo.umbral)}.</div>
           </div>
           <div>
             <button className="btn" type="button" aria-disabled={!lista.length} onClick={exportar}><Icono id="i-down" />Exportar lista (CSV)</button>
-            <div className="hint" aria-live="polite">{avisoCsv || 'Descarga todos los clientes filtrados.'}</div>
+            {avisoCsv && <div className="hint" aria-live="polite">{avisoCsv}</div>}
           </div>
         </div>
 
@@ -136,7 +135,6 @@ export default function VistaRiesgo({ datos, modelo, f, estrella, abrir, filtros
         )}
         <div className="tfoot">
           <span>{lista.length ? `Ordenada por ${ORDEN_TXT[orden]}. Se muestran ${Math.min(cuantos, lista.length)} de ${f0(lista.length)}; el CSV incluye todos.` : ''}</span>
-          <span>Selecciona un cliente para ver su detalle.</span>
         </div>
       </div>
     </section>

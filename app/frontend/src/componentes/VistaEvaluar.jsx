@@ -24,7 +24,7 @@ const EJEMPLOS = {
 
 const NIVEL_CLASE = { Bajo: 'lo', Medio: 'md', Alto: 'hi' }
 
-export default function VistaEvaluar({ modelo }) {
+export default function VistaEvaluar() {
   const [form, setForm] = useState(EJEMPLOS.riesgo)
   const [res, setRes] = useState(null)
   const [cargando, setCargando] = useState(false)
@@ -50,7 +50,6 @@ export default function VistaEvaluar({ modelo }) {
     <section className="g ev">
       <form className="c" onSubmit={enviar}>
         <h2>Datos del cliente</h2>
-        <p className="cap">Llena los datos o carga un ejemplo. Al evaluar, el backend llama a predecir() con el modelo real.</p>
         <div className="frm" style={{ marginTop: 16 }}>
           {CAMPOS.map(([k, label, unidad, paso]) => (
             <label key={k}>
@@ -110,7 +109,6 @@ export default function VistaEvaluar({ modelo }) {
             <h3>Acciones de retención</h3>
             <div className="recb"><ul className="acc-l">{res.acciones.map((a) => <li key={a}><b>{a}</b></li>)}</ul></div>
             {res.advertencia && <div className="hint">{res.advertencia}</div>}
-            <div className="perf">Modelo: {modelo.modelo} | AUC {modelo.auc_test.toFixed(3)}</div>
           </>
         )}
       </div>

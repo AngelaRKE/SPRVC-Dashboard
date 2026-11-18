@@ -120,7 +120,7 @@ export default function VistaTendencias({ datos, modelo, f, escenario, setEscena
           <div className="c" id="scard">
             <h2>Escenario de retención</h2>
             <label htmlFor="sl" style={{ display: 'block', marginTop: 10 }}>Reducción del riesgo de abandono con acciones de retención</label>
-            <div className="scv"><span className="big num">{escenario}%</span><span className="hint" style={{ margin: 0 }}>Rango 0 a 30%</span></div>
+            <div className="scv"><span className="big num">{escenario}%</span></div>
             <input id="sl" type="range" min="0" max="30" step="1" value={escenario} onChange={(e) => setEscenario(+e.target.value)} />
             <div className="ticks" aria-hidden="true"><span>0%</span><span>10%</span><span>20%</span><span>30%</span></div>
             <div className="pre">
@@ -128,20 +128,17 @@ export default function VistaTendencias({ datos, modelo, f, escenario, setEscena
                 <button key={v} type="button" aria-pressed={v === escenario} onClick={() => setEscenario(v)}>{v === 0 ? 'Sin acciones' : v + '%'}</button>
               ))}
             </div>
-            <div className="hint">Al mover el control se recalculan los indicadores, la gráfica y las listas de las vistas 1 a 3.</div>
             <div className="cmp">
               {[['Sin acciones', base.A, 'var(--lo-dot)'], ['Con escenario', m.A, 'var(--pri)']].map(([l, v, col]) => (
                 <div className="cr" key={l}><span>{l}</span><div className="ct"><div style={{ width: (v / mx) * 100 + '%', background: col }} /></div><b>{usd(v)}</b></div>
               ))}
             </div>
-            <div className="res" aria-live="polite">
-              {activo ? (
-                <>
-                  <span className="ck"><Icono id="i-check" /></span>
-                  <span>El ingreso esperado del próximo trimestre sube <b>{usd(m.A - base.A)}</b> (+{((m.A / base.A - 1) * 100).toFixed(1)}%) y <b>{f0(base.enRiesgo - m.enRiesgo)}</b> clientes salen del riesgo.</span>
-                </>
-              ) : 'Mueve el control para simular cuánto mejoraría el ingreso si Marketing reduce el riesgo de abandono.'}
-            </div>
+            {activo && (
+              <div className="res" aria-live="polite">
+                <span className="ck"><Icono id="i-check" /></span>
+                <span>El ingreso esperado del próximo trimestre sube <b>{usd(m.A - base.A)}</b> (+{((m.A / base.A - 1) * 100).toFixed(1)}%) y <b>{f0(base.enRiesgo - m.enRiesgo)}</b> clientes salen del riesgo.</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

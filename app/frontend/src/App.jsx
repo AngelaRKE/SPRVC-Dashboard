@@ -135,12 +135,8 @@ export default function App() {
 
         <div className="main">
           <header className="topbar">
-            <div>
-              <div className="crumb">SPRVC | Vista {VISTAS.indexOf(actual) + 1} de {VISTAS.length}</div>
-              <h1>{actual.titulo}</h1>
-            </div>
+            <h1>{actual.titulo}</h1>
             <div className="acts">
-              {listo && <span className="badge ok" title={modelo.modelo}><i />Modelo real | AUC {modelo.auc_test.toFixed(2)}</span>}
               <span className="selw">
                 <select value="" onChange={(e) => e.target.value && listo && irAArea(e.target.value)} aria-label="Ir a la vista de mi área">
                   <option value="">Mi área…</option>
@@ -183,7 +179,7 @@ export default function App() {
                 {vista === 't1' && <VistaTendencias {...props} setEscenario={setEscenario} />}
                 {vista === 't2' && <VistaSegmentos {...props} />}
                 {vista === 't3' && <VistaRiesgo {...props} filtros={filtros} setFiltros={setFiltros} />}
-                {vista === 't4' && <VistaEvaluar modelo={modelo} />}
+                {vista === 't4' && <VistaEvaluar />}
               </>
             )}
           </div>

@@ -52,7 +52,6 @@ export default function DetalleCliente({ cliente: c, cerrar, datos, modelo, f, e
             <h3>Acciones de retención</h3>
             <div className="recb">
               <ul className="acc-l">{acciones(c, f, datos, modelo).map((a) => <li key={a}><b>{a}</b></li>)}</ul>
-              <small>Generadas por recomendar_retencion() según satisfacción, quejas, devoluciones y gasto del cliente.</small>
             </div>
           </div>
 
