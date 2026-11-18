@@ -523,3 +523,15 @@ td.fuerte{font-weight:700}
 .kd{white-space:nowrap}
 @media (max-width:1400px){.kpi .kl span.ic{display:none}}
 @media (max-width:640px){.kv{font-size:24px}.kpi .kc{white-space:normal}}
+
+/* ----- gráfica de ingresos más limpia ----- */
+.chw{padding-top:30px}
+.plot{border-bottom:1px solid var(--bd)}
+.gl{border-top:1px solid color-mix(in srgb,var(--bd) 70%,transparent)}
+.grp{gap:8px}
+.col{width:clamp(28px,4vw,52px)}
+.bar{border-radius:6px 6px 0 0}
+.bar.q2,.sw.q2{background:color-mix(in srgb,var(--pri) 40%,var(--card))}
+.grp:hover .bar.q1{filter:brightness(1.1)}
+.vl{font-size:13px;color:var(--mut);font-weight:600}
+.grp:hover .vl{color:var(--tx)}

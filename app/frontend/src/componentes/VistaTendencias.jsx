@@ -3,9 +3,9 @@ import { useMemo } from 'react'
 import { Icono } from './Iconos'
 import { colorSeg, f0, indicadores, ingresoQ1, ingresoQ2, kfmt, pasoBonito, pct, signo, suma, usd, usdCorto } from '../calculos'
 
-// Gráfica de barras: dos barras por segmento (próximo y segundo trimestre) con rango ±15%
+// Gráfica de barras: dos barras por segmento (próximo y segundo trimestre). El rango ±15% se ve al pasar el mouse
 function GraficaSegmentos({ filas, estrella }) {
-  const alto = Math.max(...filas.flatMap((x) => [x.q1, x.q2])) * 1.15
+  const alto = Math.max(...filas.flatMap((x) => [x.q1, x.q2])) * 1.08
   const paso = pasoBonito(alto / 4)
   const tope = Math.ceil(alto / paso - 1e-9) * paso
   const marcas = []
@@ -13,10 +13,9 @@ function GraficaSegmentos({ filas, estrella }) {
   const y = (v) => (v / tope) * 100
 
   const barra = (nombre, periodo, v, clase) => (
-    <div className="col" data-tip={`<b>${nombre}</b><br>${periodo}: ${usd(v)}<br>Rango: ${usd(v * 0.85)} a ${usd(v * 1.15)}`}>
+    <div className="col" data-tip={`<b>${nombre}</b><br>${periodo}: ${usd(v)}<br>Entre ${usd(v * 0.85)} y ${usd(v * 1.15)}`}>
       <div className={'bar ' + clase} style={{ height: y(v) + '%' }} />
-      <div className="wh" style={{ bottom: y(v * 0.85) + '%', height: y(v * 0.3) + '%' }} />
-      <div className="vl" style={{ bottom: `calc(${y(v * 1.15)}% + 3px)` }}>{kfmt(v)}</div>
+      <div className="vl" style={{ bottom: `calc(${y(v)}% + 6px)` }}>{kfmt(v)}</div>
     </div>
   )
 
@@ -95,12 +94,11 @@ export default function VistaTendencias({ datos, modelo, f, escenario, setEscena
       <div className="g r1">
         <div className="c">
           <div className="ch-h">
-            <div><h2>Ingresos esperados por segmento (USD)</h2><p>Próximos dos trimestres, con rango de referencia</p></div>
+            <div><h2>Ingresos esperados por segmento</h2><p>Próximos dos trimestres, en dólares</p></div>
           </div>
           <div className="lg">
             <span><i className="sw" style={{ background: 'var(--pri)' }} />Próximo trimestre</span>
-            <span><i className="sw" style={{ background: 'var(--pri2)' }} />Segundo trimestre</span>
-            <span><i className="swr" />Rango ±15%</span>
+            <span><i className="sw q2" />Segundo trimestre</span>
           </div>
           <GraficaSegmentos filas={filas} estrella={estrella} />
         </div>
