@@ -44,7 +44,7 @@ function GraficaSegmentos({ filas, estrella }) {
   )
 }
 
-export default function VistaTendencias({ datos, modelo, f, escenario, setEscenario, estrella, msCarga }) {
+export default function VistaTendencias({ datos, modelo, f, escenario, setEscenario, estrella }) {
   const C = datos.clientes
   const N = C.length
   const base = useMemo(() => indicadores(C, 1, modelo.umbral), [C, modelo])
@@ -70,7 +70,6 @@ export default function VistaTendencias({ datos, modelo, f, escenario, setEscena
 
   const R = 52, LC = 2 * Math.PI * R, fr = m.enRiesgo / N
   const mx = Math.max(base.A, m.A)
-  const mc = modelo.matriz_confusion
 
   return (
     <section>
@@ -96,7 +95,6 @@ export default function VistaTendencias({ datos, modelo, f, escenario, setEscena
             <span><i className="swr" />Rango ±15%</span>
           </div>
           <GraficaSegmentos filas={filas} estrella={estrella} />
-          <div className="cap-f">Fórmula por cliente: (1 − p) × gasto mensual × 3, donde p es la probabilidad de abandono que calcula el modelo.</div>
         </div>
 
         <div className="stack">
@@ -148,36 +146,6 @@ export default function VistaTendencias({ datos, modelo, f, escenario, setEscena
         </div>
       </div>
 
-      <div className="g dets">
-        <details className="c">
-          <summary><Icono id="i-chev" />Desempeño del modelo</summary>
-          <div className="metr">
-            <div><b>{modelo.auc_test.toFixed(3)}</b><small>AUC-ROC (meta ≥ 0.75)</small></div>
-            <div><b>{pct(modelo.recall_test)}</b><small>Recall (meta ≥ 60%)</small></div>
-            <div><b>{pct(modelo.precision_test)}</b><small>Precisión</small></div>
-            <div><b>{modelo.f1_test.toFixed(2)}</b><small>F1</small></div>
-          </div>
-          <div className="mc" aria-label="Matriz de confusión en el conjunto de prueba">
-            <span className="h">Real \ Predicho</span><span className="h">Sin riesgo</span><span className="h">En riesgo</span>
-            <span className="h">Sin riesgo</span><span className="okc">{f0(mc.TN)}</span><span>{f0(mc.FP)}</span>
-            <span className="h">En riesgo</span><span>{f0(mc.FN)}</span><span className="okc">{f0(mc.TP)}</span>
-          </div>
-          <div className="perf">{modelo.modelo} ({modelo.hiperparametros}). Umbral operativo {modelo.umbral.toFixed(2)}.</div>
-        </details>
-        <details className="c">
-          <summary><Icono id="i-chev" />¿Cómo se calculan estos valores?</summary>
-          <ul>
-            <li><b>Probabilidad de abandono (p):</b> la calcula el modelo Random Forest con 26 variables de comportamiento de cada cliente.</li>
-            <li><b>Gasto mensual:</b> gasto total ÷ meses de antigüedad, recortado a {usd(datos.tope_gasto)} (percentil 95) para que los clientes de 1 o 2 meses no distorsionen las sumas.</li>
-            <li><b>Ingreso del próximo trimestre:</b> (1 − p) × gasto mensual × 3, sumado por cliente.</li>
-            <li><b>Ingreso del segundo trimestre:</b> el del primero × (1 − p/4).</li>
-            <li><b>CLV a 12 meses:</b> (1 − p) × gasto mensual × 12.</li>
-            <li><b>Ingreso en juego por abandono:</b> p × gasto mensual × 3.</li>
-            <li><b>Escenario de retención:</b> multiplica la probabilidad de cada cliente por (1 − reducción) y recalcula todo.</li>
-            <li><b>Tiempo de carga:</b> {msCarga} ms para traer y mostrar los {f0(N)} clientes (meta ≤ 5 s).</li>
-          </ul>
-        </details>
-      </div>
     </section>
   )
 }

@@ -8,19 +8,13 @@ import VistaSegmentos from './componentes/VistaSegmentos'
 import VistaRiesgo from './componentes/VistaRiesgo'
 import VistaEvaluar from './componentes/VistaEvaluar'
 import DetalleCliente from './componentes/DetalleCliente'
+import AcercaDe from './componentes/AcercaDe'
 
 const VISTAS = [
   { id: 't1', titulo: 'Tendencias predictivas', corto: 'Tendencias', para: 'Dirección Comercial, Ventas' },
   { id: 't2', titulo: 'Segmentos', corto: 'Segmentos', para: 'Marketing' },
   { id: 't3', titulo: 'Clientes en riesgo', corto: 'En riesgo', para: 'Marketing, Servicio al Cliente' },
   { id: 't4', titulo: 'Evaluar un cliente', corto: 'Evaluar', para: 'Todas las áreas' },
-]
-
-const EQUIPO = [
-  ['EC', 'Castillo Gamboa Emir Ariel', 'Gerente de proyecto'],
-  ['AD', 'Dominguez Caamal Andres Said', 'Ingeniero de datos'],
-  ['AK', 'Kumul Ek Angela Rubi', 'Científica de datos'],
-  ['DP', 'Pirin Solis David Antonio', 'Dashboard y QA'],
 ]
 
 export default function App() {
@@ -35,6 +29,7 @@ export default function App() {
   const [escenario, setEscenario] = useState(0)          // % de reducción del riesgo (0 a 30)
   const [filtros, setFiltros] = useState({ seg: 'all', minimo: null, orden: 'pc' })
   const [abierto, setAbierto] = useState(null)           // cliente del panel de detalle
+  const [acerca, setAcerca] = useState(false)            // panel Acerca de
   const [tema, setTema] = useState(() => {
     try { return localStorage.getItem('sprvc-tema') || 'dark' } catch { return 'dark' }
   })
@@ -89,6 +84,7 @@ export default function App() {
   }, [aviso])
 
   const cerrarDetalle = useCallback(() => setAbierto(null), [])
+  const cerrarAcerca = useCallback(() => setAcerca(false), [])
   const f = 1 - escenario / 100                           // factor del escenario
   const actual = VISTAS.find((v) => v.id === vista)
   const listo = datos && modelo
@@ -135,15 +131,6 @@ export default function App() {
               ))}
             </div>
           </div>
-          <div className="team">
-            Equipo SPRVC | UT Cancún
-            <ul>
-              {EQUIPO.map(([ini, nombre, rol]) => (
-                <li key={ini}><span className="ini">{ini}</span><span>{nombre}<em>{rol}</em></span></li>
-              ))}
-            </ul>
-            Entrega 4 | Dashboard conectado al modelo
-          </div>
         </aside>
 
         <div className="main">
@@ -164,6 +151,11 @@ export default function App() {
                 </select>
                 <Icono id="i-chevd" />
               </span>
+              {listo && (
+                <button className="ib" type="button" onClick={() => setAcerca(true)}>
+                  <Icono id="i-info" /><span className="lbl">Acerca de</span>
+                </button>
+              )}
               <button className="ib" type="button" onClick={() => setTema(tema === 'dark' ? 'light' : 'dark')}>
                 <Icono id={tema === 'dark' ? 'i-sun' : 'i-moon'} />
                 <span className="lbl">{tema === 'dark' ? 'Claro' : 'Oscuro'}</span>
@@ -182,20 +174,13 @@ export default function App() {
 
             {listo && (
               <>
-                <div className="ban" role="note">
-                  <Icono id="i-info" />
-                  <div>
-                    <b>Datos reales.</b> {datos.clientes.length.toLocaleString('en-US')} clientes del conjunto de prueba
-                    (el modelo no los vio al entrenar), calificados por el {modelo.modelo}.
-                  </div>
-                </div>
                 {escenario > 0 && vista !== 't4' && (
                   <div className="scn" role="status">
                     <Icono id="i-spark" />
                     <span>Escenario de retención activo: <b>riesgo de abandono −{escenario}%</b>. Las vistas 1 a 3 ya lo incluyen.</span>
                   </div>
                 )}
-                {vista === 't1' && <VistaTendencias {...props} setEscenario={setEscenario} msCarga={msCarga} />}
+                {vista === 't1' && <VistaTendencias {...props} setEscenario={setEscenario} />}
                 {vista === 't2' && <VistaSegmentos {...props} />}
                 {vista === 't3' && <VistaRiesgo {...props} filtros={filtros} setFiltros={setFiltros} />}
                 {vista === 't4' && <VistaEvaluar modelo={modelo} />}
@@ -205,6 +190,7 @@ export default function App() {
         </div>
       </div>
 
+      {acerca && <AcercaDe cerrar={cerrarAcerca} datos={datos} modelo={modelo} msCarga={msCarga} />}
       {abierto && <DetalleCliente cliente={abierto} cerrar={cerrarDetalle} {...props} />}
       <div className="tip" ref={tipRef} role="tooltip" hidden />
       <div className={'toast' + (aviso ? ' on' : '')} role="status" aria-live="polite">{aviso}</div>

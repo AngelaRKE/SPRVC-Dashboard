@@ -116,7 +116,6 @@ export default function VistaSegmentos({ datos, modelo, f, estrella }) {
               el tipo de cliente casi no cambia el riesgo. Lo que lo explica es el comportamiento (satisfacción, quejas y devoluciones),
               por eso la lista de la vista 3 se arma cliente por cliente.
             </div>
-            <div className="cap-f">Segmentos tomados de la columna customer_segment del dataset. La segmentación con K-Means queda como mejora futura.</div>
           </div>
         </details>
 
