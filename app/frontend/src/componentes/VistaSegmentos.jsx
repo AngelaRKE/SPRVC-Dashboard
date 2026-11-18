@@ -1,7 +1,7 @@
 // Vista 2: qué segmentos concentran clientes, ingresos y riesgo (Marketing).
 import { useMemo } from 'react'
 import { Icono } from './Iconos'
-import { clv12, colorSeg, f0, ingresoQ1, nivel, prob, suma, usd } from '../calculos'
+import { clv12, colorSeg, f0, ingresoQ1, nivel, prob, suma, usd, usdCorto } from '../calculos'
 
 const DESCRIPCION = {
   Consumidor: 'Clientes individuales',
@@ -114,9 +114,8 @@ export default function VistaSegmentos({ datos, modelo, f, estrella }) {
             <div className="ins">
               Los cuatro segmentos tienen un riesgo muy parecido ({Math.round(Math.min(...st.map((x) => x.rk)))}% a {Math.round(Math.max(...st.map((x) => x.rk)))}%):
               el tipo de cliente casi no cambia el riesgo. Lo que lo explica es el comportamiento (satisfacción, quejas y devoluciones),
-              por eso la lista de la vista 3 se arma cliente por cliente.
+              por eso la lista de clientes en riesgo se arma cliente por cliente.
             </div>
-            <div className="cap-f">Segmentos tomados de la columna customer_segment del dataset. La segmentación con K-Means queda como mejora futura.</div>
           </div>
         </details>
 
@@ -137,7 +136,7 @@ export default function VistaSegmentos({ datos, modelo, f, estrella }) {
                       data-tip={`<b>${S[k]}</b><br>${usd(x.ingreso)} | ${x.ing.toFixed(1)}% de los ingresos`} />
                   })}
                 </svg>
-                <div className="rc"><div><b>{usd(st[0].total)}</b><small>próximo trimestre</small></div></div>
+                <div className="rc"><div><b data-tip={usd(st[0].total)}>{usdCorto(st[0].total)}</b><small>próximo trimestre</small></div></div>
               </div>
               <div className="dl">
                 {st.map((x, k) => (

@@ -31,9 +31,24 @@ export function acciones(c, f, datos, modelo) {
   return c.a.map((i) => datos.acciones[i])
 }
 
+// Nombre corto de cada acción para la tabla (el texto completo se ve en el detalle y en el tooltip)
+const ACCIONES_CORTAS = [
+  ['Escalar a soporte', 'Soporte prioritario'],
+  ['Activar asesoría', 'Asesoría de compra'],
+  ['Asignar atención VIP', 'Atención VIP'],
+  ['Enviar encuesta', 'Encuesta y cupón'],
+  ['Mantener comunicación', 'Seguimiento habitual'],
+]
+export function accionCorta(texto) {
+  const par = ACCIONES_CORTAS.find(([inicio]) => texto.startsWith(inicio))
+  return par ? par[1] : texto
+}
+
 // Formatos
 export const f0 = (n) => Math.round(n).toLocaleString('en-US')
 export const usd = (n) => '$' + f0(n)
+// Dinero en formato corto para cifras grandes: $33,974,221 -> $34.0M
+export const usdCorto = (n) => (Math.abs(n) >= 1e6 ? '$' + (n / 1e6).toFixed(1) + 'M' : usd(n))
 export const pct = (p) => Math.round(p * 100) + '%'
 export const kfmt = (n) => (n <= 0 ? '0' : n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : Math.round(n / 1e3) + 'k')
 export const signo = (n, fmt) => (Math.round(n) === 0 ? '0' : (n > 0 ? '+' : '−') + fmt(Math.abs(n)))

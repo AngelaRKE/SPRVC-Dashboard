@@ -8,19 +8,13 @@ import VistaSegmentos from './componentes/VistaSegmentos'
 import VistaRiesgo from './componentes/VistaRiesgo'
 import VistaEvaluar from './componentes/VistaEvaluar'
 import DetalleCliente from './componentes/DetalleCliente'
+import AcercaDe from './componentes/AcercaDe'
 
 const VISTAS = [
   { id: 't1', titulo: 'Tendencias predictivas', corto: 'Tendencias', para: 'Dirección Comercial, Ventas' },
   { id: 't2', titulo: 'Segmentos', corto: 'Segmentos', para: 'Marketing' },
   { id: 't3', titulo: 'Clientes en riesgo', corto: 'En riesgo', para: 'Marketing, Servicio al Cliente' },
   { id: 't4', titulo: 'Evaluar un cliente', corto: 'Evaluar', para: 'Todas las áreas' },
-]
-
-const EQUIPO = [
-  ['EC', 'Castillo Gamboa Emir Ariel', 'Gerente de proyecto'],
-  ['AD', 'Dominguez Caamal Andres Said', 'Ingeniero de datos'],
-  ['AK', 'Kumul Ek Angela Rubi', 'Científica de datos'],
-  ['DP', 'Pirin Solis David Antonio', 'Dashboard y QA'],
 ]
 
 export default function App() {
@@ -35,10 +29,10 @@ export default function App() {
   const [escenario, setEscenario] = useState(0)          // % de reducción del riesgo (0 a 30)
   const [filtros, setFiltros] = useState({ seg: 'all', minimo: null, orden: 'pc' })
   const [abierto, setAbierto] = useState(null)           // cliente del panel de detalle
+  const [acerca, setAcerca] = useState(false)            // panel Acerca de
   const [tema, setTema] = useState(() => {
     try { return localStorage.getItem('sprvc-tema') || 'dark' } catch { return 'dark' }
   })
-  const [aviso, setAviso] = useState('')
 
   // 1. Al abrir la página se piden los datos al backend
   useEffect(() => {
@@ -58,6 +52,11 @@ export default function App() {
     document.documentElement.dataset.theme = tema
     try { localStorage.setItem('sprvc-tema', tema) } catch { /* sin almacenamiento */ }
   }, [tema])
+
+  // Al cambiar de vista se regresa al inicio de la página
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [vista])
 
   // 3. Tooltip: cualquier elemento con data-tip muestra su texto al pasar el mouse
   const tipRef = useRef(null)
@@ -82,13 +81,8 @@ export default function App() {
     return () => { document.removeEventListener('mouseover', sobre); document.removeEventListener('mousemove', mover) }
   }, [])
 
-  useEffect(() => {
-    if (!aviso) return
-    const t = setTimeout(() => setAviso(''), 3200)
-    return () => clearTimeout(t)
-  }, [aviso])
-
   const cerrarDetalle = useCallback(() => setAbierto(null), [])
+  const cerrarAcerca = useCallback(() => setAcerca(false), [])
   const f = 1 - escenario / 100                           // factor del escenario
   const actual = VISTAS.find((v) => v.id === vista)
   const listo = datos && modelo
@@ -102,16 +96,6 @@ export default function App() {
     })
     return prom.indexOf(Math.max(...prom))
   }, [datos])
-
-  function irAArea(area) {
-    if (area === 'dir' || area === 'ven') { setVista('t1'); setAviso('Dirección Comercial y Ventas: ingresos esperados y escenario de retención.') }
-    if (area === 'mkt') { setVista('t2'); setAviso('Marketing: segmentos y dónde está el valor.') }
-    if (area === 'sac') {
-      setFiltros({ seg: 'all', minimo: Math.round(modelo.umbral_alto * 100), orden: 'pc' })
-      setVista('t3')
-      setAviso('Servicio al Cliente: clientes con riesgo alto para contactar primero.')
-    }
-  }
 
   const props = { datos, modelo, f, escenario, estrella, abrir: setAbierto }
 
@@ -130,41 +114,26 @@ export default function App() {
               {VISTAS.map((v, i) => (
                 <button key={v.id} role="tab" aria-selected={vista === v.id} onClick={() => setVista(v.id)}>
                   <span className="nn">{i + 1}</span>
-                  <span className="nt"><span className="lg-n">{v.titulo}</span><span className="sh-n">{v.corto}</span></span>
+                  <span className="nt">
+                    <span className="lg-n">{v.titulo}</span><span className="sh-n">{v.corto}</span>
+                    <span className="ns">{v.para}</span>
+                  </span>
                 </button>
               ))}
             </div>
-          </div>
-          <div className="team">
-            Equipo SPRVC | UT Cancún
-            <ul>
-              {EQUIPO.map(([ini, nombre, rol]) => (
-                <li key={ini}><span className="ini">{ini}</span><span>{nombre}<em>{rol}</em></span></li>
-              ))}
-            </ul>
-            Entrega 4 | Dashboard conectado al modelo
           </div>
         </aside>
 
         <div className="main">
           <header className="topbar">
-            <div>
-              <div className="crumb">SPRVC | Vista {VISTAS.indexOf(actual) + 1} de {VISTAS.length}</div>
-              <h1>{actual.titulo}</h1>
-            </div>
+            <h1>{actual.titulo}</h1>
             <div className="acts">
-              {listo && <span className="badge ok" title={modelo.modelo}><i />Modelo real | AUC {modelo.auc_test.toFixed(2)}</span>}
-              <span className="selw">
-                <select value="" onChange={(e) => e.target.value && listo && irAArea(e.target.value)} aria-label="Ir a la vista de mi área">
-                  <option value="">Mi área…</option>
-                  <option value="dir">Dirección Comercial</option>
-                  <option value="ven">Ventas</option>
-                  <option value="mkt">Marketing</option>
-                  <option value="sac">Servicio al Cliente</option>
-                </select>
-                <Icono id="i-chevd" />
-              </span>
-              <button className="ib" type="button" onClick={() => setTema(tema === 'dark' ? 'light' : 'dark')}>
+              {listo && (
+                <button className="ib" type="button" aria-label="Acerca de" onClick={() => setAcerca(true)}>
+                  <Icono id="i-info" /><span className="lbl">Acerca de</span>
+                </button>
+              )}
+              <button className="ib" type="button" aria-label={tema === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'} onClick={() => setTema(tema === 'dark' ? 'light' : 'dark')}>
                 <Icono id={tema === 'dark' ? 'i-sun' : 'i-moon'} />
                 <span className="lbl">{tema === 'dark' ? 'Claro' : 'Oscuro'}</span>
               </button>
@@ -182,32 +151,26 @@ export default function App() {
 
             {listo && (
               <>
-                <div className="ban" role="note">
-                  <Icono id="i-info" />
-                  <div>
-                    <b>Datos reales.</b> {datos.clientes.length.toLocaleString('en-US')} clientes del conjunto de prueba
-                    (el modelo no los vio al entrenar), calificados por el {modelo.modelo}.
-                  </div>
-                </div>
                 {escenario > 0 && vista !== 't4' && (
                   <div className="scn" role="status">
                     <Icono id="i-spark" />
-                    <span>Escenario de retención activo: <b>riesgo de abandono −{escenario}%</b>. Las vistas 1 a 3 ya lo incluyen.</span>
+                    <span>Escenario activo: <b>riesgo de abandono −{escenario}%</b></span>
+                    <button className="ib scn-x" type="button" onClick={() => setEscenario(0)}>Quitar</button>
                   </div>
                 )}
-                {vista === 't1' && <VistaTendencias {...props} setEscenario={setEscenario} msCarga={msCarga} />}
+                {vista === 't1' && <VistaTendencias {...props} setEscenario={setEscenario} />}
                 {vista === 't2' && <VistaSegmentos {...props} />}
                 {vista === 't3' && <VistaRiesgo {...props} filtros={filtros} setFiltros={setFiltros} />}
-                {vista === 't4' && <VistaEvaluar modelo={modelo} />}
+                {vista === 't4' && <VistaEvaluar />}
               </>
             )}
           </div>
         </div>
       </div>
 
+      {acerca && <AcercaDe cerrar={cerrarAcerca} datos={datos} modelo={modelo} msCarga={msCarga} />}
       {abierto && <DetalleCliente cliente={abierto} cerrar={cerrarDetalle} {...props} />}
       <div className="tip" ref={tipRef} role="tooltip" hidden />
-      <div className={'toast' + (aviso ? ' on' : '')} role="status" aria-live="polite">{aviso}</div>
     </>
   )
 }

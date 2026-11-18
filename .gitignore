@@ -8,3 +8,5 @@ data/real/
 .DS_Store
 node_modules/
 app/frontend/dist/
+probar.py
+app/frontend/.vite/
