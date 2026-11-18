@@ -47,6 +47,8 @@ export function accionCorta(texto) {
 // Formatos
 export const f0 = (n) => Math.round(n).toLocaleString('en-US')
 export const usd = (n) => '$' + f0(n)
+// Dinero en formato corto para cifras grandes: $33,974,221 -> $34.0M
+export const usdCorto = (n) => (Math.abs(n) >= 1e6 ? '$' + (n / 1e6).toFixed(1) + 'M' : usd(n))
 export const pct = (p) => Math.round(p * 100) + '%'
 export const kfmt = (n) => (n <= 0 ? '0' : n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : Math.round(n / 1e3) + 'k')
 export const signo = (n, fmt) => (Math.round(n) === 0 ? '0' : (n > 0 ? '+' : '−') + fmt(Math.abs(n)))

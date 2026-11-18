@@ -1,7 +1,7 @@
 // Vista 1: ingresos esperados, clientes en riesgo y escenario de retención (Dirección Comercial y Ventas).
 import { useMemo } from 'react'
 import { Icono } from './Iconos'
-import { colorSeg, f0, indicadores, ingresoQ1, ingresoQ2, kfmt, pasoBonito, pct, signo, suma, usd } from '../calculos'
+import { colorSeg, f0, indicadores, ingresoQ1, ingresoQ2, kfmt, pasoBonito, pct, signo, suma, usd, usdCorto } from '../calculos'
 
 // Gráfica de barras: dos barras por segmento (próximo y segundo trimestre) con rango ±15%
 function GraficaSegmentos({ filas, estrella }) {
@@ -50,7 +50,7 @@ export default function VistaTendencias({ datos, modelo, f, escenario, setEscena
   const base = useMemo(() => indicadores(C, 1, modelo.umbral), [C, modelo])
   const m = useMemo(() => indicadores(C, f, modelo.umbral), [C, f, modelo])
   const activo = escenario > 0
-  const dif = (v, b, fmt) => (activo ? `${signo(v - b, fmt)} vs. sin acciones` : '')
+  const dif = (v, b, fmt) => (activo ? signo(v - b, fmt) : '')
 
   const filas = useMemo(
     () => datos.segmentos.map((nombre, k) => {
@@ -60,12 +60,17 @@ export default function VistaTendencias({ datos, modelo, f, escenario, setEscena
     [C, datos.segmentos, f],
   )
 
+  // Cada indicador: ícono, título, contexto (periodo o criterio), valor, valor exacto, detalle y cambio por escenario
   const kpis = [
-    ['i-users', 'Clientes', f0(N), 'Clientes analizados por el modelo', ''],
-    ['i-cash', 'Ingreso esperado | próximo trimestre', usd(m.A), `Rango ${kfmt(m.A * 0.85)} a ${kfmt(m.A * 1.15)}`, dif(m.A, base.A, usd)],
-    ['i-cal', 'Ingreso esperado | segundo trimestre', usd(m.B), `Rango ${kfmt(m.B * 0.85)} a ${kfmt(m.B * 1.15)}`, dif(m.B, base.B, usd)],
-    ['i-gem', 'CLV promedio a 12 meses', usd(m.clvProm), 'Valor esperado por cliente', dif(m.clvProm, base.clvProm, usd)],
-    ['i-risk', `En riesgo (prob. ≥ ${pct(modelo.umbral)})`, f0(m.enRiesgo), `${((m.enRiesgo / N) * 100).toFixed(1)}% de los clientes`, dif(m.enRiesgo, base.enRiesgo, f0)],
+    { ic: 'i-users', titulo: 'Clientes', ctx: 'Por el modelo', valor: f0(N), sub: 'del conjunto de prueba' },
+    { ic: 'i-cash', titulo: 'Ingreso esperado', ctx: 'Próximo trimestre', valor: usdCorto(m.A), exacto: usd(m.A),
+      sub: `entre ${usdCorto(m.A * 0.85)} y ${usdCorto(m.A * 1.15)}`, dif: dif(m.A, base.A, usdCorto) },
+    { ic: 'i-cal', titulo: 'Ingreso esperado', ctx: 'Segundo trimestre', valor: usdCorto(m.B), exacto: usd(m.B),
+      sub: `entre ${usdCorto(m.B * 0.85)} y ${usdCorto(m.B * 1.15)}`, dif: dif(m.B, base.B, usdCorto) },
+    { ic: 'i-gem', titulo: 'CLV promedio', ctx: 'A 12 meses', valor: usd(m.clvProm), sub: 'valor esperado por cliente',
+      dif: dif(m.clvProm, base.clvProm, usd) },
+    { ic: 'i-risk', titulo: 'En riesgo', ctx: `Prob. ≥ ${pct(modelo.umbral)}`, valor: f0(m.enRiesgo),
+      sub: `${((m.enRiesgo / N) * 100).toFixed(1)}% de los clientes`, dif: dif(m.enRiesgo, base.enRiesgo, f0) },
   ]
 
   const R = 52, LC = 2 * Math.PI * R, fr = m.enRiesgo / N
@@ -74,12 +79,15 @@ export default function VistaTendencias({ datos, modelo, f, escenario, setEscena
   return (
     <section>
       <div className="g kpis">
-        {kpis.map(([ic, l, v, s, d]) => (
-          <div className="c kpi" key={l}>
-            <div className="kl"><span className="ic"><Icono id={ic} /></span>{l}</div>
-            <div className="kv">{v}</div>
-            <div className="ks">{s}</div>
-            <div className="kd">{d}</div>
+        {kpis.map((k) => (
+          <div className="c kpi" key={k.ic}>
+            <div className="kl">
+              <span className="ic"><Icono id={k.ic} /></span>
+              <span><span className="kt">{k.titulo}</span><span className="kc">{k.ctx}</span></span>
+            </div>
+            <div className="kv" data-tip={k.exacto}>{k.valor}</div>
+            <div className="ks">{k.sub}</div>
+            {k.dif && <div className="kd" data-tip="Cambio frente a no tomar acciones">{k.dif}</div>}
           </div>
         ))}
       </div>
