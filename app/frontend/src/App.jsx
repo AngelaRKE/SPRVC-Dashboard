@@ -53,6 +53,11 @@ export default function App() {
     try { localStorage.setItem('sprvc-tema', tema) } catch { /* sin almacenamiento */ }
   }, [tema])
 
+  // Al cambiar de vista se regresa al inicio de la página
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [vista])
+
   // 3. Tooltip: cualquier elemento con data-tip muestra su texto al pasar el mouse
   const tipRef = useRef(null)
   useEffect(() => {
