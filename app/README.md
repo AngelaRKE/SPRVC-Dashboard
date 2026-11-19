@@ -19,7 +19,7 @@ Se necesitan **dos terminales** abiertas en la raíz del repositorio (`SPRVC-Mod
 ```bash
 python -m uvicorn app.backend.main:app --port 8000
 ```
-Tarda unos segundos en arrancar porque califica a los 10,000 clientes con el modelo.
+Tarda varios segundos en arrancar porque califica a los 50,000 clientes reales con el modelo.
 En `http://localhost:8000/docs` se pueden probar las rutas a mano.
 
 **Terminal 2: frontend**
@@ -32,15 +32,15 @@ Abre `http://localhost:5173`.
 ## Cómo funciona
 
 ### Backend (`app/backend/`)
-- `clientes.py`: al arrancar lee el CSV, construye las 26 variables con la misma función del entrenamiento
-  (`construir()` de `preprocess_real.py`), separa el mismo 20% de prueba (10,000 clientes que el modelo no vio)
-  y calcula para cada uno la probabilidad de abandono, sus factores de riesgo y sus acciones de retención.
+- `clientes.py`: al arrancar lee los 50,000 registros del CSV, construye las 26 variables con la misma función del entrenamiento
+  (`construir()` de `preprocess_real.py`) y calcula para cada cliente la probabilidad de abandono,
+  sus factores de riesgo y sus acciones de retención. El conjunto de 20% de prueba se reserva para las métricas del modelo.
 - `main.py`: expone 3 rutas.
 
 | Ruta | Qué hace |
 | --- | --- |
 | `GET /api/modelo` | Métricas del modelo: AUC, recall, precisión, umbral, matriz de confusión |
-| `GET /api/clientes` | Los 10,000 clientes ya calificados |
+| `GET /api/clientes` | Los 50,000 clientes reales ya calificados |
 | `POST /api/predecir` | Evalúa un cliente nuevo con `predecir()` y `recomendar_retencion()` |
 
 El backend **no cambia la lógica del modelo**: solo llama a las funciones del equipo de datos.
@@ -64,7 +64,7 @@ diario. Incluye los datos usados, el desempeño del modelo (AUC, recall, precisi
 cómo se calculan los valores y los créditos del equipo.
 
 ## Decisiones a tener en cuenta
-- **Clientes mostrados:** solo los del conjunto de prueba, para que las predicciones sean honestas.
+- **Clientes mostrados:** todos los registros reales disponibles. Las métricas se siguen reportando sobre el conjunto de prueba del 20%.
 - **Riesgo:** un cliente está "en riesgo" desde el umbral del modelo (56%) y en "riesgo alto" desde 71%,
   los mismos cortes de `predecir()`.
 - **Gasto mensual:** para ingreso y CLV se recorta al percentil 95, porque los clientes de 1 o 2 meses de

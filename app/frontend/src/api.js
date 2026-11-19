@@ -10,7 +10,7 @@ async function pedir(url, opciones) {
 // Métricas del modelo: AUC, recall, umbral, importancia de variables...
 export const obtenerModelo = () => pedir('/api/modelo')
 
-// Los 10,000 clientes de prueba ya calificados por el modelo
+// Los 50,000 clientes reales ya calificados por el modelo
 export const obtenerClientes = () => pedir('/api/clientes')
 
 // Evalúa un cliente nuevo con predecir() del equipo de datos

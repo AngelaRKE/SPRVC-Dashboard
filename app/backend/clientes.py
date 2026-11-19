@@ -3,16 +3,14 @@
 Pasos:
   1. Lee el CSV real (data/real/ecommerce_real.csv).
   2. Construye las 26 variables con la MISMA función que usa el entrenamiento (construir de preprocess_real.py).
-  3. Separa el mismo 20% de prueba (semilla 42): son 10,000 clientes que el modelo nunca vio al entrenar.
+  3. Usa los 50,000 registros reales disponibles.
   4. Calcula la probabilidad de abandono, los factores de riesgo y las acciones de retención de cada cliente.
 """
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
-
-from src.data.preprocess_real import SEED, construir
+from src.data.preprocess_real import construir
 from src.models import predict as P
 
 RAIZ = Path(__file__).resolve().parents[2]
@@ -47,14 +45,17 @@ def _factores(x_scaled: np.ndarray, prob: np.ndarray, top: int = 3) -> list[list
     Las que más la bajan son las que más empujan al cliente hacia el abandono.
     """
     n_var = x_scaled.shape[1]
-    variantes = np.repeat(x_scaled, n_var, axis=0)
-    filas = np.arange(len(variantes))
-    variantes[filas, filas % n_var] = 0.0
-    aporte = prob[:, None] - P.MODELO.predict_proba(variantes)[:, 1].reshape(-1, n_var)
     salida = []
-    for fila in aporte:
-        orden = np.argsort(fila)[::-1][:top]
-        salida.append([int(i) for i in orden if fila[i] > 0.005])
+    for inicio in range(0, len(x_scaled), 2000):
+        x_lote = x_scaled[inicio:inicio + 2000]
+        p_lote = prob[inicio:inicio + 2000]
+        variantes = np.repeat(x_lote, n_var, axis=0)
+        filas = np.arange(len(variantes))
+        variantes[filas, filas % n_var] = 0.0
+        aporte = p_lote[:, None] - P.MODELO.predict_proba(variantes)[:, 1].reshape(-1, n_var)
+        for fila in aporte:
+            orden = np.argsort(fila)[::-1][:top]
+            salida.append([int(i) for i in orden if fila[i] > 0.005])
     return salida
 
 
@@ -65,9 +66,7 @@ def cargar() -> dict:
 
     raw = pd.read_csv(CSV).drop_duplicates(subset="customer_id").reset_index(drop=True)
     df = construir(raw)
-    _, prueba = train_test_split(df.index, test_size=0.2, stratify=df["abandono"], random_state=SEED)
-    prueba = sorted(prueba)
-    datos, crudos = df.loc[prueba], raw.loc[prueba]
+    datos, crudos = df, raw
 
     # Los clientes con 1 o 2 meses de antigüedad tienen un "gasto mensual" enorme (todo lo que gastaron / 1 mes).
     # Para los cálculos de dinero del dashboard (ingreso y CLV) se recorta al percentil 95 de toda la base,

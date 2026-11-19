@@ -34,4 +34,4 @@ experimento              modelo  auc_train  auc_test  pr_auc_test  recall_test  
 [SUCCESS] Modelo candidato serializado en: models/real/modelo_candidato.joblib
 [SUCCESS] Modelo baseline serializado en: models/real/modelo_baseline.joblib
 [SUCCESS] Escalador (ajustado solo con train) en: models/real/scaler.joblib | umbral y metadatos: models/real/config_modelo.json
-[SUCCESS] Reportes: reports/real/experimentos.csv, reports/real/metricas.json, gráficas en reports/real/figures
+[SUCCESS] Reportes: reports/real/entrenamiento/experimentos.csv, reports/real/metricas.json, gráficas en reports/real/entrenamiento/figures

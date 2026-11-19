@@ -30,6 +30,12 @@ export default function App() {
   const [filtros, setFiltros] = useState({ seg: 'all', minimo: null, orden: 'pc' })
   const [abierto, setAbierto] = useState(null)           // cliente del panel de detalle
   const [acerca, setAcerca] = useState(false)            // panel Acerca de
+  const [ayuda, setAyuda] = useState(false)
+  const [notas, setNotas] = useState(() => {
+    try { return localStorage.getItem('sprvc-notas') === '1' } catch { return false }
+  })
+  const [recorrido, setRecorrido] = useState(null)
+  const [pasoRecorrido, setPasoRecorrido] = useState(0)
   const [tema, setTema] = useState(() => {
     try { return localStorage.getItem('sprvc-tema') || 'dark' } catch { return 'dark' }
   })
@@ -52,6 +58,42 @@ export default function App() {
     document.documentElement.dataset.theme = tema
     try { localStorage.setItem('sprvc-tema', tema) } catch { /* sin almacenamiento */ }
   }, [tema])
+
+  useEffect(() => {
+    document.body.classList.toggle('notes', notas)
+    try { localStorage.setItem('sprvc-notas', notas ? '1' : '0') } catch { /* sin almacenamiento */ }
+  }, [notas])
+
+  useEffect(() => {
+    if (!notas) setRecorrido(null)
+  }, [notas])
+
+  useEffect(() => {
+    if (!recorrido) return
+    const tecla = (e) => { if (e.key === 'Escape') setRecorrido(null) }
+    document.addEventListener('keydown', tecla)
+    return () => document.removeEventListener('keydown', tecla)
+  }, [recorrido])
+
+  useEffect(() => {
+    document.querySelectorAll('.tour-hl').forEach((x) => x.classList.remove('tour-hl'))
+    if (!recorrido) return
+    const objetivo = [
+      null,
+      '.tool',
+      '.tw',
+      '.dr',
+      '.btn',
+      '#scard',
+      null,
+    ][pasoRecorrido]
+    if (!objetivo) return
+    const elemento = document.querySelector(objetivo)
+    if (elemento) {
+      elemento.classList.add('tour-hl')
+      setTimeout(() => elemento.scrollIntoView({ block: 'center', behavior: 'smooth' }), 80)
+    }
+  }, [recorrido, pasoRecorrido, vista])
 
   // Al cambiar de vista se regresa al inicio de la página
   useEffect(() => {
@@ -97,7 +139,97 @@ export default function App() {
     return prom.indexOf(Math.max(...prom))
   }, [datos])
 
-  const props = { datos, modelo, f, escenario, estrella, abrir: setAbierto }
+  const props = { datos, modelo, f, escenario, estrella, msCarga, abrir: setAbierto }
+  const cambiarArea = (e) => {
+    const destino = { dir: 't1', ven: 't1', mkt: 't2', sac: 't3' }[e.target.value]
+    if (destino) setVista(destino)
+  }
+
+  const terminarRecorrido = useCallback(() => {
+    setRecorrido(null)
+    setPasoRecorrido(0)
+    setEscenario(0)
+    setFiltros((x) => ({ ...x, seg: 'all', minimo: modelo ? Math.round(modelo.umbral * 100) : 50, orden: 'pc' }))
+    setAbierto(null)
+    setVista('t1')
+  }, [modelo])
+
+  const abrirRecorrido = () => {
+    setNotas(true)
+    setPasoRecorrido(0)
+    setRecorrido(true)
+  }
+
+  const avanzarRecorrido = () => {
+    const ultimo = 6
+    if (pasoRecorrido >= ultimo) { terminarRecorrido(); return }
+    setPasoRecorrido((x) => x + 1)
+  }
+
+  const pasosRecorrido = [
+    {
+      titulo: 'Ejemplo de uso del dashboard',
+      texto: 'La gerente de Marketing abre el dashboard antes de planear una campaña. Los 50,000 clientes reales ya están calificados.',
+    },
+    {
+      titulo: 'Entra a “Clientes en riesgo”',
+      texto: `Selecciona todos los segmentos y usa el umbral operativo del modelo: ${modelo ? Math.round(modelo.umbral * 100) : 56}%.`,
+    },
+    {
+      titulo: 'Revisa la lista priorizada',
+      texto: 'La lista puede ordenarse por ingreso en juego, probabilidad de abandono o CLV a 12 meses.',
+    },
+    {
+      titulo: 'Abre un cliente de la lista',
+      texto: 'El panel muestra su riesgo, variables principales, CLV estimado e instrumentos de retención aplicables.',
+    },
+    {
+      titulo: 'Exporta la lista',
+      texto: 'El botón CSV exporta todos los clientes que cumplen los filtros, no solamente los que aparecen en la página.',
+    },
+    {
+      titulo: 'Estima el efecto de una campaña',
+      texto: 'En Tendencias puedes aplicar una reducción del 15% al riesgo y ver el ingreso esperado protegido.',
+    },
+    {
+      titulo: 'Fin del recorrido',
+      texto: 'Al salir, el escenario se quita y vuelven los filtros generales para comenzar una nueva revisión.',
+    },
+  ]
+
+  useEffect(() => {
+    if (!recorrido || !datos || !modelo) return
+
+    if (pasoRecorrido === 0) {
+      setVista('t1')
+      setEscenario(0)
+      setFiltros((x) => ({ ...x, seg: 'all', minimo: Math.round(modelo.umbral * 100), orden: 'pc' }))
+      setAbierto(null)
+    }
+    if (pasoRecorrido === 1) {
+      setVista('t3')
+      setFiltros((x) => ({ ...x, seg: 'all', minimo: Math.round(modelo.umbral * 100), orden: 'pc' }))
+      setAbierto(null)
+    }
+    if (pasoRecorrido === 2) setVista('t3')
+    if (pasoRecorrido === 3) {
+      setVista('t3')
+      setFiltros((x) => ({ ...x, minimo: Math.round(modelo.umbral * 100), orden: 'pc' }))
+      const candidato = datos.clientes
+        .filter((c) => c.p * f >= modelo.umbral)
+        .sort((a, b) => (b.p * b.g) - (a.p * a.g))[0]
+      if (candidato) setAbierto(candidato)
+    }
+    if (pasoRecorrido === 4) {
+      setAbierto(null)
+      setVista('t3')
+    }
+    if (pasoRecorrido === 5) {
+      setVista('t1')
+      setEscenario(15)
+    }
+    if (pasoRecorrido === 6) setVista('t1')
+  }, [recorrido, pasoRecorrido, datos, modelo, f])
 
   return (
     <>
@@ -122,12 +254,45 @@ export default function App() {
               ))}
             </div>
           </div>
+          <div className="team">
+            Equipo SPRVC · UT Cancún
+            <ul>
+              <li><span className="ini">EC</span><span>Castillo Gamboa Emir Ariel<em>Gerente de proyecto</em></span></li>
+              <li><span className="ini">AD</span><span>Dominguez Caamal Andres Said<em>Ingeniero de datos</em></span></li>
+              <li><span className="ini">AK</span><span>Kumul Ek Angela Rubi<em>Científica de datos</em></span></li>
+              <li><span className="ini">DP</span><span>Pirin Solis David Antonio<em>Dashboard y QA</em></span></li>
+            </ul>
+            <span>Universidad Tecnológica de Cancún</span>
+          </div>
         </aside>
 
         <div className="main">
           <header className="topbar">
-            <h1>{actual.titulo}</h1>
+            <div><div className="crumb">SPRVC · Vista {VISTAS.findIndex((v) => v.id === vista) + 1} de {VISTAS.length}</div><h1>{actual.titulo}</h1></div>
             <div className="acts">
+              {listo && <span className="badge ok" title="Datos y modelo obtenidos del backend"><i />Datos reales</span>}
+              <span className="selw">
+                <label className="sr" htmlFor="area">Ir a la vista de mi área</label>
+                <select id="area" value="" onChange={cambiarArea}>
+                  <option value="">Mi área…</option>
+                  <option value="dir">Dirección Comercial</option>
+                  <option value="ven">Ventas</option>
+                  <option value="mkt">Marketing</option>
+                  <option value="sac">Servicio al Cliente</option>
+                </select>
+                <Icono id="i-chevd" />
+              </span>
+              <button className="ib swt" type="button" role="switch" aria-checked={notas} onClick={() => setNotas((v) => !v)}>
+                <span className="trk" aria-hidden="true"><span /></span><span className="lbl">Notas</span>
+              </button>
+              {notas && listo && (
+                <button className="ib tourb" type="button" aria-label="Ver recorrido del ejemplo de uso" onClick={abrirRecorrido}>
+                  <Icono id="i-play" /><span className="lbl">Ver ejemplo</span>
+                </button>
+              )}
+              <button className="ib" type="button" aria-expanded={ayuda} aria-controls="panel-ayuda" onClick={() => setAyuda((v) => !v)}>
+                <Icono id="i-info" /><span className="lbl">Ayuda</span>
+              </button>
               {listo && (
                 <button className="ib" type="button" aria-label="Acerca de" onClick={() => setAcerca(true)}>
                   <Icono id="i-info" /><span className="lbl">Acerca de</span>
@@ -141,6 +306,22 @@ export default function App() {
           </header>
 
           <div className="content">
+            {ayuda && (
+              <section className="help" id="panel-ayuda" aria-label="Cómo usar el tablero">
+                <h2>Cómo usar el tablero</h2>
+                <ol>
+                  <li><b>Tendencias predictivas:</b> consulte el ingreso esperado y pruebe escenarios de retención.</li>
+                  <li><b>Segmentos:</b> identifique qué grupos concentran clientes e ingresos.</li>
+                  <li><b>Clientes en riesgo:</b> filtre, abra un cliente y exporte la lista (CSV).</li>
+                  <li><b>Evaluar un cliente:</b> ingrese datos y obtenga una predicción del modelo.</li>
+                </ol>
+                <div style={{ marginTop: 12 }}>
+                  <button className="ib" type="button" onClick={() => window.print()}>
+                    <Icono id="i-print" />Imprimir esta vista
+                  </button>
+                </div>
+              </section>
+            )}
             {error && (
               <div className="carga">
                 <div className="ban err" role="alert"><Icono id="i-info" /><div><b>{error}</b> Revisa que esté corriendo en otra terminal:</div></div>
@@ -168,9 +349,30 @@ export default function App() {
         </div>
       </div>
 
+      {listo && <div className="mfoot">Equipo: Castillo Gamboa Emir Ariel, Dominguez Caamal Andres Said, Kumul Ek Angela Rubi y Pirin Solis David Antonio · UT Cancún · SPRVC</div>}
       {acerca && <AcercaDe cerrar={cerrarAcerca} datos={datos} modelo={modelo} msCarga={msCarga} />}
       {abierto && <DetalleCliente cliente={abierto} cerrar={cerrarDetalle} {...props} />}
       <div className="tip" ref={tipRef} role="tooltip" hidden />
+      {recorrido && (
+        <>
+          <div className="tour-ov" aria-hidden="true" />
+          <section className="tour" role="dialog" aria-modal="true" aria-labelledby="titulo-recorrido">
+            <div className="tc">Paso {pasoRecorrido + 1} de {pasosRecorrido.length}</div>
+            <h3 id="titulo-recorrido">{pasosRecorrido[pasoRecorrido].titulo}</h3>
+            <p>{pasosRecorrido[pasoRecorrido].texto}</p>
+            <div className="tb">
+              <div className="dots" aria-hidden="true">
+                {pasosRecorrido.map((_, i) => <i key={i} className={i === pasoRecorrido ? 'on' : ''} />)}
+              </div>
+              <div className="tbn">
+                <button type="button" onClick={terminarRecorrido}>Salir</button>
+                <button type="button" disabled={pasoRecorrido === 0} onClick={() => setPasoRecorrido((x) => Math.max(0, x - 1))}>Anterior</button>
+                <button type="button" className="pr" onClick={avanzarRecorrido}>{pasoRecorrido === pasosRecorrido.length - 1 ? 'Terminar' : 'Siguiente'}</button>
+              </div>
+            </div>
+          </section>
+        </>
+      )}
     </>
   )
 }

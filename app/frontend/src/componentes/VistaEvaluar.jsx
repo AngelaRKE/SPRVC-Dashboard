@@ -25,9 +25,20 @@ const GRUPOS = [
 ]
 const TASAS = ['tasa_apertura_correos', 'tasa_clics', 'tasa_conversion']
 
-const EJEMPLOS = {
-  riesgo: { antiguedad_meses: 30, num_compras: 60, ticket_promedio_usd: 400, gasto_mensual_usd: 800, quejas: 12, devoluciones: 16, satisfaccion: 1.8, tasa_apertura_correos: 45, tasa_clics: 20, tasa_conversion: 10, canal: 'Online', dispositivo: 'Mobile', lealtad: 'Bronze' },
-  fiel: { antiguedad_meses: 72, num_compras: 140, ticket_promedio_usd: 520, gasto_mensual_usd: 1100, quejas: 2, devoluciones: 3, satisfaccion: 4.6, tasa_apertura_correos: 60, tasa_clics: 30, tasa_conversion: 20, canal: 'In-Store', dispositivo: 'Desktop', lealtad: 'Diamond' },
+const PERFIL_MEDIANO = {
+  antiguedad_meses: 60,
+  num_compras: 99,
+  ticket_promedio_usd: 504.78,
+  gasto_mensual_usd: 709.62,
+  quejas: 7,
+  devoluciones: 10,
+  satisfaccion: 3,
+  tasa_apertura_correos: 50,
+  tasa_clics: 25,
+  tasa_conversion: 15,
+  canal: 'Online',
+  dispositivo: 'Desktop',
+  lealtad: null,
 }
 
 const NIVEL_CLASE = { Bajo: 'lo', Medio: 'md', Alto: 'hi' }
@@ -58,17 +69,13 @@ function Lista({ label, valor, opciones, cambiar, id, vacio }) {
 }
 
 export default function VistaEvaluar() {
-  const [form, setForm] = useState(EJEMPLOS.riesgo)
+  const [form, setForm] = useState(PERFIL_MEDIANO)
   const [res, setRes] = useState(null)
   const [cargando, setCargando] = useState(false)
-  const [ejemplo, setEjemplo] = useState('riesgo')      // ejemplo cargado en el formulario
   const panel = useRef(null)
 
-  // Alterna entre el ejemplo de cliente en riesgo y el de cliente fiel
-  function cargarEjemplo() {
-    const siguiente = ejemplo === 'riesgo' ? 'fiel' : 'riesgo'
-    setEjemplo(siguiente)
-    setForm(EJEMPLOS[siguiente])
+  function cargarMediana() {
+    setForm(PERFIL_MEDIANO)
     setRes(null)
   }
 
@@ -95,11 +102,16 @@ export default function VistaEvaluar() {
   }
 
   return (
-    <section className="g ev">
+    <section>
+      <div className="vh note">
+        <p><b>Para qué sirve:</b> cualquier área puede evaluar un cliente nuevo con el modelo entrenado y obtener acciones de retención.</p>
+        <div className="for">Para: <span className="tag">Todas las áreas</span></div>
+      </div>
+      <div className="g ev">
       <form className="c" onSubmit={enviar}>
         <div className="ch-h">
           <h2>Datos del cliente</h2>
-          <button className="ib" type="button" onClick={cargarEjemplo}>Cargar ejemplo</button>
+          <button className="ib" type="button" onClick={cargarMediana}>Cargar perfil mediano</button>
         </div>
 
         <fieldset className="grp-f">
@@ -160,6 +172,7 @@ export default function VistaEvaluar() {
             {res.advertencia && <div className="hint">{res.advertencia}</div>}
           </>
         )}
+      </div>
       </div>
     </section>
   )
