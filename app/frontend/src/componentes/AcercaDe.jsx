@@ -38,8 +38,8 @@ export default function AcercaDe({ cerrar, datos, modelo, msCarga }) {
           <div className="sec">
             <h3>Datos</h3>
             <p className="ad-p">
-              {f0(datos.clientes.length)} clientes del conjunto de prueba del dataset de e-commerce (20% separado al
-              entrenar), así que el modelo no los vio antes de calificarlos.
+              {f0(datos.clientes.length)} clientes reales del dataset de e-commerce. El conjunto de prueba del 20%
+              separado durante el entrenamiento se mantiene únicamente para validar y reportar las métricas del modelo.
             </p>
           </div>
 

@@ -6,7 +6,7 @@ Es el puente entre el dashboard en React y el modelo de IA:
 
 Rutas:
     GET  /api/modelo     métricas del modelo (AUC, recall, umbral, importancia de variables)
-    GET  /api/clientes   los 10,000 clientes de prueba ya calificados por el modelo
+    GET  /api/clientes   los 50,000 clientes reales ya calificados por el modelo
     POST /api/predecir   evalúa un cliente nuevo con predecir() y recomendar_retencion()
 
 Cómo correrlo (desde la raíz del repositorio):
@@ -58,7 +58,7 @@ def modelo():
 
 @app.get("/api/clientes")
 def clientes():
-    """Clientes de prueba con su probabilidad, factores y acciones (los índices apuntan a los catálogos)."""
+    """Clientes reales con su probabilidad, factores y acciones (los índices apuntan a los catálogos)."""
     return DATOS
 
 

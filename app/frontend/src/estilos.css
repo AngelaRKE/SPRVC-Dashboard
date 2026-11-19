@@ -374,6 +374,8 @@ body:not(.notes) .note{display:none!important}
 .tour button:hover{border-color:var(--pri)}
 .tour button.pr{background:var(--btn);color:var(--on-btn);border-color:var(--btn)}
 .tour button:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+.tour-ov{position:fixed;inset:0;background:var(--ov);z-index:44;pointer-events:none}
+.tour-hl{position:relative;z-index:45;box-shadow:0 0 0 3px var(--pri),0 0 0 9px var(--pri-s)!important;border-radius:14px;transition:box-shadow .2s}
 .tour-hl{position:relative;z-index:45;box-shadow:0 0 0 3px var(--pri),0 0 0 9px var(--pri-s)!important;border-radius:14px;transition:box-shadow .2s}
 .tour-ov{position:fixed;inset:0;background:var(--ov);z-index:44;pointer-events:none}
 

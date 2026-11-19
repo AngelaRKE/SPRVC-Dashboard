@@ -90,7 +90,8 @@ def main() -> None:
     a = ap.parse_args()
     warnings.filterwarnings("ignore")
     salida, rep = Path(a.output), Path(a.reports)
-    (rep / "figures").mkdir(parents=True, exist_ok=True)
+    entrenamiento = rep / "entrenamiento"
+    (entrenamiento / "figures").mkdir(parents=True, exist_ok=True)
     salida.mkdir(parents=True, exist_ok=True)
 
     # ---------------------------------------------------------------- datos
@@ -181,7 +182,7 @@ def main() -> None:
                       "t_entrenamiento_s": round(e["t_train"], 3), "t_inferencia_test_s": round(r["t_inferencia_s"], 4),
                       "diagnostico": r["diag"]})
     tabla = pd.DataFrame(filas)
-    tabla.to_csv(rep / "experimentos.csv", index=False)
+    tabla.to_csv(entrenamiento / "experimentos.csv", index=False)
 
     # ganador: mejor AUC de validación cruzada (criterio independiente del Test Set)
     gan = max(exps, key=lambda e: e["cv_auc"])
@@ -245,7 +246,7 @@ def main() -> None:
                     color="white" if cm[i, j] > cm.max() / 2 else "black")
     ax.set_xticks([0, 1], ["Fiel", "Abandono"]); ax.set_yticks([0, 1], ["Fiel", "Abandono"])
     ax.set_xlabel("Predicho"); ax.set_ylabel("Real"); ax.set_title(f"Matriz de confusión (Test)\n{gan['id']} · {gan['familia']}")
-    fig.tight_layout(); fig.savefig(rep / "figures" / "matriz_confusion.png", dpi=170); plt.close(fig)
+    fig.tight_layout(); fig.savefig(entrenamiento / "figures" / "matriz_confusion.png", dpi=170); plt.close(fig)
 
     fig, axs = plt.subplots(1, 2, figsize=(10, 4))
     for e in exps:
@@ -254,20 +255,21 @@ def main() -> None:
         axs[0].plot(fpr, tpr, label=et, lw=2 if e is gan else 1.2); axs[1].plot(rc, pr, label=et, lw=2 if e is gan else 1.2)
     axs[0].plot([0, 1], [0, 1], "k--", lw=.8); axs[0].set_xlabel("Tasa de falsos positivos"); axs[0].set_ylabel("Recall"); axs[0].set_title("Curva ROC (Test)")
     axs[1].axhline(yte.mean(), color="k", ls="--", lw=.8); axs[1].set_xlabel("Recall"); axs[1].set_ylabel("Precisión"); axs[1].set_title("Curva precisión-recall (Test)")
-    axs[0].legend(fontsize=7, loc="lower right"); fig.tight_layout(); fig.savefig(rep / "figures" / "curvas_roc_pr.png", dpi=170); plt.close(fig)
+    axs[0].legend(fontsize=7, loc="lower right"); fig.tight_layout(); fig.savefig(entrenamiento / "figures" / "curvas_roc_pr.png", dpi=170); plt.close(fig)
 
     fig, ax = plt.subplots(figsize=(6, 3.8))
     imp.sort_values().plot.barh(ax=ax, color="#0568cc"); ax.set_xlabel("Caída de AUC al permutar la variable (Test)")
     ax.set_title("Importancia de variables · modelo candidato"); fig.tight_layout()
-    fig.savefig(rep / "figures" / "importancia_variables.png", dpi=170); plt.close(fig)
+    fig.savefig(entrenamiento / "figures" / "importancia_variables.png", dpi=170); plt.close(fig)
 
-    (rep / "log_entrenamiento.txt").write_text("\n".join(LOG) + "\n", encoding="utf-8")
+    (entrenamiento / "log_entrenamiento.txt").write_text("\n".join(LOG) + "\n", encoding="utf-8")
     metricas = {"ganador": f"{gan['id']} {gan['familia']}", "comparacion_lr_vs_rf": comparacion,
                 "matriz_confusion": {"TN": int(cm[0, 0]), "FP": int(cm[0, 1]), "FN": int(cm[1, 0]), "TP": int(cm[1, 1])},
                 "experimentos": json.loads(tabla.to_json(orient="records"))}
     (rep / "metricas.json").write_text(json.dumps(metricas, indent=2, ensure_ascii=False))
-    log(f"[SUCCESS] Reportes: {rep / 'experimentos.csv'}, {rep / 'metricas.json'}, gráficas en {rep / 'figures'}")
-    (rep / "log_entrenamiento.txt").write_text("\n".join(LOG) + "\n", encoding="utf-8")
+    log(f"[SUCCESS] Métricas para el dashboard: {rep / 'metricas.json'}")
+    log(f"[SUCCESS] Reportes de entrenamiento: {entrenamiento}")
+    (entrenamiento / "log_entrenamiento.txt").write_text("\n".join(LOG) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
