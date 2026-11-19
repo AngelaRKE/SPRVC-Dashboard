@@ -23,7 +23,7 @@ Tarda varios segundos en arrancar porque califica a los 50,000 clientes reales c
 En `http://localhost:8000/docs` se pueden probar las rutas a mano.
 
 **Terminal 2: frontend**
-```bash
+```bash 
 cd app/frontend
 npm run dev
 ```

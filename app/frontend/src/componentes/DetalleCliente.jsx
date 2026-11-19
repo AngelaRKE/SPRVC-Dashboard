@@ -11,7 +11,7 @@ export default function DetalleCliente({ cliente: c, cerrar, datos, modelo, f, e
 
   // Cerrar con Escape y poner el foco en el botón de cerrar
   useEffect(() => {
-    btnCerrar.current?.focus()
+    btnCerrar.current?.focus({ preventScroll: true })
     const tecla = (e) => e.key === 'Escape' && cerrar()
     document.addEventListener('keydown', tecla)
     return () => document.removeEventListener('keydown', tecla)

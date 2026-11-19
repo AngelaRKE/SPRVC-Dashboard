@@ -91,9 +91,11 @@ export default function App() {
     const elemento = document.querySelector(objetivo)
     if (elemento) {
       elemento.classList.add('tour-hl')
-      setTimeout(() => elemento.scrollIntoView({ block: 'center', behavior: 'smooth' }), 80)
+      if (window.getComputedStyle(elemento).position !== 'fixed') {
+        setTimeout(() => elemento.scrollIntoView({ block: 'center', behavior: 'smooth' }), 80)
+      }
     }
-  }, [recorrido, pasoRecorrido, vista])
+  }, [recorrido, pasoRecorrido, vista, abierto])
 
   // Al cambiar de vista se regresa al inicio de la página
   useEffect(() => {
@@ -140,10 +142,6 @@ export default function App() {
   }, [datos])
 
   const props = { datos, modelo, f, escenario, estrella, msCarga, abrir: setAbierto }
-  const cambiarArea = (e) => {
-    const destino = { dir: 't1', ven: 't1', mkt: 't2', sac: 't3' }[e.target.value]
-    if (destino) setVista(destino)
-  }
 
   const terminarRecorrido = useCallback(() => {
     setRecorrido(null)
@@ -254,34 +252,12 @@ export default function App() {
               ))}
             </div>
           </div>
-          <div className="team">
-            Equipo SPRVC · UT Cancún
-            <ul>
-              <li><span className="ini">EC</span><span>Castillo Gamboa Emir Ariel<em>Gerente de proyecto</em></span></li>
-              <li><span className="ini">AD</span><span>Dominguez Caamal Andres Said<em>Ingeniero de datos</em></span></li>
-              <li><span className="ini">AK</span><span>Kumul Ek Angela Rubi<em>Científica de datos</em></span></li>
-              <li><span className="ini">DP</span><span>Pirin Solis David Antonio<em>Dashboard y QA</em></span></li>
-            </ul>
-            <span>Universidad Tecnológica de Cancún</span>
-          </div>
         </aside>
 
         <div className="main">
           <header className="topbar">
-            <div><div className="crumb">SPRVC · Vista {VISTAS.findIndex((v) => v.id === vista) + 1} de {VISTAS.length}</div><h1>{actual.titulo}</h1></div>
+            <h1>{actual.titulo}</h1>
             <div className="acts">
-              {listo && <span className="badge ok" title="Datos y modelo obtenidos del backend"><i />Datos reales</span>}
-              <span className="selw">
-                <label className="sr" htmlFor="area">Ir a la vista de mi área</label>
-                <select id="area" value="" onChange={cambiarArea}>
-                  <option value="">Mi área…</option>
-                  <option value="dir">Dirección Comercial</option>
-                  <option value="ven">Ventas</option>
-                  <option value="mkt">Marketing</option>
-                  <option value="sac">Servicio al Cliente</option>
-                </select>
-                <Icono id="i-chevd" />
-              </span>
               <button className="ib swt" type="button" role="switch" aria-checked={notas} onClick={() => setNotas((v) => !v)}>
                 <span className="trk" aria-hidden="true"><span /></span><span className="lbl">Notas</span>
               </button>
@@ -291,7 +267,7 @@ export default function App() {
                 </button>
               )}
               <button className="ib" type="button" aria-expanded={ayuda} aria-controls="panel-ayuda" onClick={() => setAyuda((v) => !v)}>
-                <Icono id="i-info" /><span className="lbl">Ayuda</span>
+                <Icono id="i-help" /><span className="lbl">Ayuda</span>
               </button>
               {listo && (
                 <button className="ib" type="button" aria-label="Acerca de" onClick={() => setAcerca(true)}>
@@ -349,14 +325,13 @@ export default function App() {
         </div>
       </div>
 
-      {listo && <div className="mfoot">Equipo: Castillo Gamboa Emir Ariel, Dominguez Caamal Andres Said, Kumul Ek Angela Rubi y Pirin Solis David Antonio · UT Cancún · SPRVC</div>}
       {acerca && <AcercaDe cerrar={cerrarAcerca} datos={datos} modelo={modelo} msCarga={msCarga} />}
       {abierto && <DetalleCliente cliente={abierto} cerrar={cerrarDetalle} {...props} />}
       <div className="tip" ref={tipRef} role="tooltip" hidden />
       {recorrido && (
         <>
           <div className="tour-ov" aria-hidden="true" />
-          <section className="tour" role="dialog" aria-modal="true" aria-labelledby="titulo-recorrido">
+          <section className={`tour ${pasoRecorrido === 3 || pasoRecorrido === 5 ? 'tour-left' : ''}`} role="dialog" aria-modal="true" aria-labelledby="titulo-recorrido">
             <div className="tc">Paso {pasoRecorrido + 1} de {pasosRecorrido.length}</div>
             <h3 id="titulo-recorrido">{pasosRecorrido[pasoRecorrido].titulo}</h3>
             <p>{pasosRecorrido[pasoRecorrido].texto}</p>
