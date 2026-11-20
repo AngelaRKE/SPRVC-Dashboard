@@ -103,10 +103,6 @@ export default function VistaEvaluar() {
 
   return (
     <section>
-      <div className="vh note">
-        <p><b>Para qué sirve:</b> cualquier área puede evaluar un cliente nuevo con el modelo entrenado y obtener acciones de retención.</p>
-        <div className="for">Para: <span className="tag">Todas las áreas</span></div>
-      </div>
       <div className="g ev">
       <form className="c" onSubmit={enviar}>
         <div className="ch-h">

@@ -61,10 +61,6 @@ export default function VistaRiesgo({ datos, modelo, f, estrella, abrir, filtros
 
   return (
     <section>
-      <div className="vh note">
-        <p><b>Para qué sirve:</b> Marketing y Servicio al Cliente pueden priorizar contactos por riesgo, ingreso en juego y acciones sugeridas.</p>
-        <div className="for">Para: <span className="tag">Marketing</span><span className="tag">Servicio al Cliente</span></div>
-      </div>
       <div className="c">
         <div className="tool">
           <div>

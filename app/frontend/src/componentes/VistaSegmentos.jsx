@@ -42,10 +42,6 @@ export default function VistaSegmentos({ datos, modelo, f, estrella }) {
 
   return (
     <section>
-      <div className="vh note">
-        <p><b>Para qué sirve:</b> Marketing puede comparar el valor de los segmentos y detectar qué grupos requieren atención.</p>
-        <div className="for">Para: <span className="tag">Marketing</span></div>
-      </div>
       <div className="g segs">
         {S.map((nombre, k) => (
           <div className="c seg" key={nombre} style={{ '--sc': colorSeg(k) }}>

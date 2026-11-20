@@ -31,9 +31,6 @@ export default function App() {
   const [abierto, setAbierto] = useState(null)           // cliente del panel de detalle
   const [acerca, setAcerca] = useState(false)            // panel Acerca de
   const [ayuda, setAyuda] = useState(false)
-  const [notas, setNotas] = useState(() => {
-    try { return localStorage.getItem('sprvc-notas') === '1' } catch { return false }
-  })
   const [recorrido, setRecorrido] = useState(null)
   const [pasoRecorrido, setPasoRecorrido] = useState(0)
   const [tema, setTema] = useState(() => {
@@ -58,15 +55,6 @@ export default function App() {
     document.documentElement.dataset.theme = tema
     try { localStorage.setItem('sprvc-tema', tema) } catch { /* sin almacenamiento */ }
   }, [tema])
-
-  useEffect(() => {
-    document.body.classList.toggle('notes', notas)
-    try { localStorage.setItem('sprvc-notas', notas ? '1' : '0') } catch { /* sin almacenamiento */ }
-  }, [notas])
-
-  useEffect(() => {
-    if (!notas) setRecorrido(null)
-  }, [notas])
 
   useEffect(() => {
     if (!recorrido) return
@@ -141,7 +129,7 @@ export default function App() {
     return prom.indexOf(Math.max(...prom))
   }, [datos])
 
-  const props = { datos, modelo, f, escenario, estrella, msCarga, abrir: setAbierto }
+  const props = { datos, modelo, f, escenario, estrella, abrir: setAbierto }
 
   const terminarRecorrido = useCallback(() => {
     setRecorrido(null)
@@ -153,7 +141,6 @@ export default function App() {
   }, [modelo])
 
   const abrirRecorrido = () => {
-    setNotas(true)
     setPasoRecorrido(0)
     setRecorrido(true)
   }
@@ -258,10 +245,7 @@ export default function App() {
           <header className="topbar">
             <h1>{actual.titulo}</h1>
             <div className="acts">
-              <button className="ib swt" type="button" role="switch" aria-checked={notas} onClick={() => setNotas((v) => !v)}>
-                <span className="trk" aria-hidden="true"><span /></span><span className="lbl">Notas</span>
-              </button>
-              {notas && listo && (
+              {listo && (
                 <button className="ib tourb" type="button" aria-label="Ver recorrido del ejemplo de uso" onClick={abrirRecorrido}>
                   <Icono id="i-play" /><span className="lbl">Ver ejemplo</span>
                 </button>

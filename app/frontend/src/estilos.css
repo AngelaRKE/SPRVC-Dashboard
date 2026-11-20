@@ -73,10 +73,6 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .scn b{font-weight:700}
 
 /* ===== encabezado de vista ===== */
-.vh{display:flex;justify-content:space-between;gap:8px 20px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px}
-.vh p{margin:0;max-width:72ch;color:var(--mut)}
-.vh p b{color:var(--tx);font-weight:600}
-.for{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:14px;color:var(--mut)}
 .tag{display:inline-block;font-size:14px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--card);border:1px solid var(--bd);color:var(--tx)}
 
 /* ===== tarjetas y rejillas ===== */
@@ -309,13 +305,6 @@ td.rc{min-width:220px}
 .tip{position:fixed;z-index:60;pointer-events:none;background:var(--tx);color:var(--bg);font-size:14px;line-height:1.45;padding:8px 12px;border-radius:8px;max-width:280px;box-shadow:0 4px 14px rgba(0,0,0,.35)}
 
 /* ===== notas del prototipo ===== */
-body:not(.notes) .note{display:none!important}
-.swt{gap:9px}
-.swt .trk{width:34px;height:20px;border-radius:999px;background:var(--cb);position:relative;transition:background .2s;flex:none}
-.swt .trk span{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--bg);transition:transform .2s}
-.swt[aria-checked=true]{border-color:var(--pri);background:var(--pri-s);color:var(--pri)}
-.swt[aria-checked=true] .trk{background:var(--pri)}
-.swt[aria-checked=true] .trk span{transform:translateX(14px)}
 
 /* ===== componentes adicionales ===== */
 .seg2{display:inline-flex;background:var(--soft);border-radius:10px;padding:3px;gap:2px}
