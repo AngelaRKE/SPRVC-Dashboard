@@ -60,6 +60,17 @@ export default function AcercaDe({ cerrar, datos, modelo, msCarga }) {
           </div>
 
           <div className="sec">
+            <h3>Metas del proyecto</h3>
+            <div className="goal">
+              <div><span>Datos reales disponibles</span><span className="st okk">Cumplida</span><small>{f0(datos.clientes.length)} clientes calificados</small></div>
+              <div><span>Modelo de abandono</span><span className="st okk">Cumplida</span><small>AUC-ROC {modelo.auc_test.toFixed(3)} ≥ 0.75 | Recall {pct(modelo.recall_test)} ≥ 60%</small></div>
+              <div><span>Tiempo de carga del dashboard</span><span className="st okk">Medido</span><small>{msCarga ?? 'No disponible'} ms | meta ≤ 5 s</small></div>
+              <div><span>Segmentación con K-Means</span><span className="st">Pendiente</span><small>Se usan los segmentos reales del dataset</small></div>
+              <div><span>Proyección estadística de ventas</span><span className="st">Pendiente</span><small>No se generan series históricas ni pronósticos simulados</small></div>
+            </div>
+          </div>
+
+          <div className="sec">
             <h3>Cómo se calculan los valores</h3>
             <ul className="ad-l">
               <li><b>Probabilidad de abandono (p):</b> la calcula el modelo con 26 variables de comportamiento de cada cliente.</li>
@@ -71,7 +82,6 @@ export default function AcercaDe({ cerrar, datos, modelo, msCarga }) {
               <li><b>Ingreso en juego:</b> p × gasto mensual × 3.</li>
               <li><b>Escenario de retención:</b> multiplica p por (1 − reducción) y recalcula todo.</li>
               <li><b>Segmentos:</b> columna customer_segment del dataset; la segmentación con K-Means queda como mejora futura.</li>
-              <li><b>Tiempo de carga:</b> {msCarga} ms (meta ≤ 5 s).</li>
             </ul>
           </div>
 

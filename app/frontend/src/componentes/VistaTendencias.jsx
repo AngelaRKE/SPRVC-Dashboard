@@ -43,7 +43,7 @@ function GraficaSegmentos({ filas, estrella }) {
   )
 }
 
-export default function VistaTendencias({ datos, modelo, f, escenario, setEscenario, estrella, msCarga }) {
+export default function VistaTendencias({ datos, modelo, f, escenario, setEscenario, estrella }) {
   const C = datos.clientes
   const N = C.length
   const base = useMemo(() => indicadores(C, 1, modelo.umbral), [C, modelo])
@@ -77,10 +77,6 @@ export default function VistaTendencias({ datos, modelo, f, escenario, setEscena
 
   return (
     <section>
-      <div className="vh note">
-        <p><b>Para qué sirve:</b> Dirección Comercial puede estimar el ingreso esperado y medir cuánto protegen las acciones de retención.</p>
-        <div className="for">Para: <span className="tag">Dirección Comercial</span><span className="tag">Ventas</span></div>
-      </div>
       <div className="g kpis">
         {kpis.map((k) => (
           <div className="c kpi" key={k.ic}>
@@ -151,31 +147,6 @@ export default function VistaTendencias({ datos, modelo, f, escenario, setEscena
           </div>
         </div>
       </div>
-
-      <div className="g dets note">
-        <details className="c">
-          <summary><Icono id="i-chev" />Cómo se calculan estos valores</summary>
-          <ul>
-            <li><b>Probabilidad de abandono (p):</b> la calcula el modelo con las 26 variables del cliente.</li>
-            <li><b>Ingreso del próximo trimestre:</b> (1 − p) × gasto mensual × 3, sumado por segmento.</li>
-            <li><b>Ingreso del segundo trimestre:</b> ingreso del primer trimestre × (1 − p/4).</li>
-            <li><b>CLV a 12 meses:</b> (1 − p) × gasto mensual × 12.</li>
-            <li><b>Ingreso en juego:</b> p × gasto mensual × 3.</li>
-            <li><b>Escenario de retención:</b> recalcula p como p × (1 − reducción).</li>
-          </ul>
-        </details>
-        <details className="c" id="mvp">
-          <summary><Icono id="i-chev" />Estado de las metas verificables</summary>
-          <div className="goal">
-            <div><span>Datos reales disponibles</span><span className="st okk">Cumplida</span><small>{f0(N)} clientes calificados</small></div>
-            <div><span>Modelo de abandono</span><span className="st okk">Cumplida</span><small>AUC-ROC {modelo.auc_test.toFixed(3)} ≥ 0.75 · Recall {pct(modelo.recall_test)} ≥ 60%</small></div>
-            <div><span>Tiempo de carga del dashboard</span><span className="st okk">Medido</span><small>{msCarga ?? 'No disponible'} ms · meta ≤ 5 s</small></div>
-            <div><span>Segmentación con K-Means</span><span className="st">Pendiente</span><small>La aplicación usa los segmentos reales del dataset</small></div>
-            <div><span>Proyección estadística de ventas</span><span className="st">Pendiente</span><small>No se generan series históricas ni pronósticos simulados</small></div>
-          </div>
-        </details>
-      </div>
-
     </section>
   )
 }

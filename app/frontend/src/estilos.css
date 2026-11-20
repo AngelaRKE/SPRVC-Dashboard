@@ -73,10 +73,6 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stro
 .scn b{font-weight:700}
 
 /* ===== encabezado de vista ===== */
-.vh{display:flex;justify-content:space-between;gap:8px 20px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px}
-.vh p{margin:0;max-width:72ch;color:var(--mut)}
-.vh p b{color:var(--tx);font-weight:600}
-.for{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:14px;color:var(--mut)}
 .tag{display:inline-block;font-size:14px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--card);border:1px solid var(--bd);color:var(--tx)}
 
 /* ===== tarjetas y rejillas ===== */
@@ -309,13 +305,6 @@ td.rc{min-width:220px}
 .tip{position:fixed;z-index:60;pointer-events:none;background:var(--tx);color:var(--bg);font-size:14px;line-height:1.45;padding:8px 12px;border-radius:8px;max-width:280px;box-shadow:0 4px 14px rgba(0,0,0,.35)}
 
 /* ===== notas del prototipo ===== */
-body:not(.notes) .note{display:none!important}
-.swt{gap:9px}
-.swt .trk{width:34px;height:20px;border-radius:999px;background:var(--cb);position:relative;transition:background .2s;flex:none}
-.swt .trk span{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--bg);transition:transform .2s}
-.swt[aria-checked=true]{border-color:var(--pri);background:var(--pri-s);color:var(--pri)}
-.swt[aria-checked=true] .trk{background:var(--pri)}
-.swt[aria-checked=true] .trk span{transform:translateX(14px)}
 
 /* ===== componentes adicionales ===== */
 .seg2{display:inline-flex;background:var(--soft);border-radius:10px;padding:3px;gap:2px}
@@ -351,27 +340,6 @@ body:not(.notes) .note{display:none!important}
 @keyframes skm{to{background-position:-200% 0}}
 .perf{font-size:14px;color:var(--mut);margin-top:10px}
 /* "Ver ejemplo" es secundario: solo contorno, para que no compita con la acción principal */
-.ib.tourb{border-color:var(--pri);color:var(--pri)}
-.ib.tourb:hover{background:var(--pri-s)}
-.tour{position:fixed;right:24px;bottom:24px;z-index:70;width:min(400px,calc(100% - 32px));background:var(--card);border:1px solid var(--pri);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.45);padding:18px 20px}
-.tour .tc{font-size:14px;font-weight:600;color:var(--pri);text-transform:uppercase;letter-spacing:.06em}
-.tour h3{margin:4px 0 8px;font-size:18px;font-weight:600}
-.tour p{margin:0;color:var(--mut)}
-.tour p b{color:var(--tx);font-weight:600}
-.tour .tb{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:16px}
-.tour .dots{display:flex;gap:5px}
-.tour .dots i{width:7px;height:7px;border-radius:50%;background:var(--cb)}
-.tour .dots i.on{background:var(--pri)}
-.tour .tbn{display:flex;gap:8px}
-.tour button{all:unset;cursor:pointer;font-size:14px;font-weight:600;padding:8px 14px;border-radius:9px;border:1px solid var(--cb)}
-.tour button:hover{border-color:var(--pri)}
-.tour button.pr{background:var(--btn);color:var(--on-btn);border-color:var(--btn)}
-.tour button:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
-.tour-ov{position:fixed;inset:0;background:var(--ov);z-index:44;pointer-events:none}
-.tour-hl{position:relative;z-index:45;box-shadow:0 0 0 3px var(--pri),0 0 0 9px var(--pri-s)!important;border-radius:14px;transition:box-shadow .2s}
-.dr.on.tour-hl{position:fixed;z-index:45}
-.dr.on.tour-hl .recb{border-color:var(--bd);background:var(--soft)}
-.tour.tour-left{left:24px;right:auto}
 
 /* ===== responsive ===== */
 @media (max-width:1240px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.segs{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -427,8 +395,6 @@ body:not(.notes) .note{display:none!important}
 .bub{margin-left:48px}
 .ax{margin-left:48px}
 .imp .ir{grid-template-columns:130px minmax(0,1fr) 44px}
-.tour{right:16px;bottom:16px}
-.tour.tour-left{left:16px;right:auto}
 .ordw>span:first-child{display:none}
 .xl span{font-size:13px}
 .cmp .cr{grid-template-columns:92px minmax(0,1fr) 88px}
@@ -437,7 +403,7 @@ body:not(.notes) .note{display:none!important}
 }
 @media print{
 :root,:root[data-theme]{--bg:#f4feff;--side:#ffffff;--card:#ffffff;--soft:#e9f0f6;--bd:#d5dee8;--cb:#7a8798;--tx:#0b1020;--mut:#4b5967;--pri:#0568cc;--on-pri:#ffffff;--pri-s:#dcecfb;--pri2:#8794a6;--btn:#0175e4;--on-btn:#ffffff;--ok:#1f7a5c;--ok-s:#dff3eb;--lo-bg:#e9eef4;--lo-tx:#4b5967;--lo-dot:#8794a6;--md-bg:#fbedc6;--md-tx:#644600;--md-dot:#d39b0b;--hi-bg:#fbdde0;--hi-tx:#8e1c2b;--hi-dot:#d6455a;--s0:#5b52d6;--s1:#0e938d;--s2:#c9731f;--s3:#b0438c;--sh:0 1px 2px rgba(11,16,32,.05),0 6px 20px rgba(11,16,32,.06);--ov:rgba(11,16,32,.45);color-scheme:light}
-.side,.acts,.ov,.dr,.tip,.toast,.tour,.tour-ov,.help,.seg2,.pre,input[type=range],.btn,.scrollhint,.ordw{display:none!important}
+.side,.acts,.ov,.dr,.tip,.toast,.invita,.help,.seg2,.pre,input[type=range],.btn,.scrollhint,.ordw{display:none!important}
 .app{display:block}.topbar{position:static;border:0;padding:0 0 10px}.content{padding:0;max-width:none}
 body{background:#fff;color:#000}.c{box-shadow:none;break-inside:avoid}
 details:not([open])>*:not(summary){display:none}
@@ -552,3 +518,89 @@ td.fuerte{font-weight:700}
 .vacio-i{width:36px;height:36px;color:var(--pri)}
 @media (max-width:1100px){.resu{position:static}}
 @media (max-width:640px){.frm.tres{grid-template-columns:minmax(0,1fr)}}
+
+/* ----- tutorial con driver.js, con los colores del tema ----- */
+.driver-popover.sprvc-tour{background:var(--card);color:var(--tx);border:1px solid var(--pri);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.45);padding:18px 20px;max-width:360px;font-family:inherit}
+.sprvc-tour .driver-popover-title{font-size:18px;font-weight:600;color:var(--tx)}
+.sprvc-tour .driver-popover-description{font-size:15px;line-height:1.5;color:var(--mut);margin-top:6px}
+.sprvc-tour .driver-popover-progress-text{font-size:13px;color:var(--mut)}
+.sprvc-tour .driver-popover-footer{margin-top:16px}
+.sprvc-tour .driver-popover-footer button{font:inherit;font-size:14px;font-weight:600;text-shadow:none;padding:7px 14px;border-radius:9px;border:1px solid var(--cb);background:transparent;color:var(--tx)}
+.sprvc-tour .driver-popover-footer button:hover{border-color:var(--pri);background:var(--pri-s)}
+.sprvc-tour .driver-popover-next-btn{background:var(--btn)!important;color:var(--on-btn)!important;border-color:var(--btn)!important}
+.sprvc-tour .driver-popover-close-btn{color:var(--mut)}
+.sprvc-tour .driver-popover-close-btn:hover{color:var(--tx)}
+.sprvc-tour .driver-popover-arrow-side-left{border-left-color:var(--card)}
+.sprvc-tour .driver-popover-arrow-side-right{border-right-color:var(--card)}
+.sprvc-tour .driver-popover-arrow-side-top{border-top-color:var(--card)}
+.sprvc-tour .driver-popover-arrow-side-bottom{border-bottom-color:var(--card)}
+.invita{position:fixed;right:24px;bottom:24px;z-index:70;width:min(340px,calc(100% - 32px));background:var(--card);border:1px solid var(--pri);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.45);padding:16px 18px}
+.invita b{font-size:16px}
+.invita p{margin:4px 0 14px;color:var(--mut)}
+.invita div{display:flex;gap:8px;flex-wrap:wrap}
+@media (max-width:640px){.invita{right:16px;bottom:16px}}
+
+/* ----- botón Ayuda con menú desplegable ----- */
+.ayw{position:relative}
+.chv-s{width:14px;height:14px;margin-left:-2px;color:var(--mut)}
+.menu{position:absolute;right:0;top:calc(100% + 8px);z-index:60;min-width:260px;background:var(--card);border:1px solid var(--bd);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.35);padding:6px;display:grid}
+.menu button{all:unset;box-sizing:border-box;display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border-radius:9px;cursor:pointer}
+.menu button:hover,.menu button:focus-visible{background:var(--soft)}
+.menu button:disabled{opacity:.5;cursor:default}
+.menu button svg{margin-top:2px;color:var(--pri);flex:none}
+.menu b{display:block;font-size:15px;font-weight:600}
+.menu small{display:block;font-size:13px;color:var(--mut)}
+.help-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.help-h h2{margin:0}
+.help ol{margin-bottom:14px}
+@media (max-width:640px){.topbar{position:relative}.ayw{position:static}.menu{left:16px;right:16px;top:calc(100% - 6px);min-width:0}}
+.ev .menu{min-width:280px}
+@media (max-width:640px){.ev .ch-h{position:relative}}
+
+/* ===== adaptable a cualquier resolución ===== */
+/* 1. En pantallas grandes (2K, ultrawide, 4K) el dashboard se escala un poco para que no se vea diminuto.
+      Se escala .app y los paneles; el tutorial (driver.js) no, porque calcula posiciones en pixeles reales. */
+:root{--z:1}
+@media (min-width:1800px) and (min-height:950px){:root{--z:1.1}}
+@media (min-width:2300px) and (min-height:1300px){:root{--z:1.25}}
+@media (min-width:3000px) and (min-height:1900px){:root{--z:1.5}}
+.app,.dr,.invita,.tip{zoom:var(--z)}
+.side{height:calc(100vh / var(--z))}
+@media (max-width:980px){.side{height:auto}}
+.dr{height:calc(100vh / var(--z));bottom:auto}
+@media (min-width:1800px) and (min-height:950px){
+  .sprvc-tour.driver-popover{max-width:calc(360px * var(--z));padding:calc(18px * var(--z)) calc(20px * var(--z))}
+  .sprvc-tour .driver-popover-title{font-size:calc(18px * var(--z))}
+  .sprvc-tour .driver-popover-description{font-size:calc(15px * var(--z))}
+  .sprvc-tour .driver-popover-footer button,.sprvc-tour .driver-popover-progress-text{font-size:calc(14px * var(--z))}
+}
+
+/* 2. El contenido se centra y la barra superior se alinea con él, para que en monitores anchos
+      no quede todo pegado a la izquierda con los botones hasta la otra orilla. */
+.content{max-width:1600px;margin-inline:auto}
+@media (min-width:981px){.topbar{padding-inline:max(32px, calc((100% - 1600px) / 2 + 28px))}}
+
+/* 3. KPIs entre 641 y 1240 px: 3 arriba y 2 abajo ocupando todo el ancho (sin hueco vacío) */
+@media (max-width:1240px) and (min-width:641px){
+  .kpis{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .kpis .kpi{grid-column:span 2}
+  .kpis .kpi:nth-child(n+4){grid-column:span 3}
+}
+
+/* 4. Celulares chicos: pestañas que quepan completas y etiquetas de la gráfica sin encimarse */
+@media (max-width:480px){
+  .side .brand{display:none}
+  .nav{gap:2px}
+  .nav button{padding:8px 7px}
+  .nav .nt{font-size:14px}
+  .grp .col:nth-child(2) .vl{display:none}
+  .vl{font-size:11px}
+  .grp{gap:4px}
+}
+@media (max-width:360px){
+  .col{width:clamp(18px,6vw,26px)}
+  .grp{gap:3px}
+  .nav button{padding:8px 5px}
+  .nav .nt{font-size:13px}
+  .xl span{font-size:12px}
+}
