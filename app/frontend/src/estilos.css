@@ -556,3 +556,51 @@ td.fuerte{font-weight:700}
 @media (max-width:640px){.topbar{position:relative}.ayw{position:static}.menu{left:16px;right:16px;top:calc(100% - 6px);min-width:0}}
 .ev .menu{min-width:280px}
 @media (max-width:640px){.ev .ch-h{position:relative}}
+
+/* ===== adaptable a cualquier resolución ===== */
+/* 1. En pantallas grandes (2K, ultrawide, 4K) el dashboard se escala un poco para que no se vea diminuto.
+      Se escala .app y los paneles; el tutorial (driver.js) no, porque calcula posiciones en pixeles reales. */
+:root{--z:1}
+@media (min-width:1800px) and (min-height:950px){:root{--z:1.1}}
+@media (min-width:2300px) and (min-height:1300px){:root{--z:1.25}}
+@media (min-width:3000px) and (min-height:1900px){:root{--z:1.5}}
+.app,.dr,.invita,.tip{zoom:var(--z)}
+.side{height:calc(100vh / var(--z))}
+@media (max-width:980px){.side{height:auto}}
+.dr{height:calc(100vh / var(--z));bottom:auto}
+@media (min-width:1800px) and (min-height:950px){
+  .sprvc-tour.driver-popover{max-width:calc(360px * var(--z));padding:calc(18px * var(--z)) calc(20px * var(--z))}
+  .sprvc-tour .driver-popover-title{font-size:calc(18px * var(--z))}
+  .sprvc-tour .driver-popover-description{font-size:calc(15px * var(--z))}
+  .sprvc-tour .driver-popover-footer button,.sprvc-tour .driver-popover-progress-text{font-size:calc(14px * var(--z))}
+}
+
+/* 2. El contenido se centra y la barra superior se alinea con él, para que en monitores anchos
+      no quede todo pegado a la izquierda con los botones hasta la otra orilla. */
+.content{max-width:1600px;margin-inline:auto}
+@media (min-width:981px){.topbar{padding-inline:max(32px, calc((100% - 1600px) / 2 + 28px))}}
+
+/* 3. KPIs entre 641 y 1240 px: 3 arriba y 2 abajo ocupando todo el ancho (sin hueco vacío) */
+@media (max-width:1240px) and (min-width:641px){
+  .kpis{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .kpis .kpi{grid-column:span 2}
+  .kpis .kpi:nth-child(n+4){grid-column:span 3}
+}
+
+/* 4. Celulares chicos: pestañas que quepan completas y etiquetas de la gráfica sin encimarse */
+@media (max-width:480px){
+  .side .brand{display:none}
+  .nav{gap:2px}
+  .nav button{padding:8px 7px}
+  .nav .nt{font-size:14px}
+  .grp .col:nth-child(2) .vl{display:none}
+  .vl{font-size:11px}
+  .grp{gap:4px}
+}
+@media (max-width:360px){
+  .col{width:clamp(18px,6vw,26px)}
+  .grp{gap:3px}
+  .nav button{padding:8px 5px}
+  .nav .nt{font-size:13px}
+  .xl span{font-size:12px}
+}
