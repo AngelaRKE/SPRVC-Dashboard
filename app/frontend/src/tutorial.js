@@ -57,7 +57,7 @@ export function iniciarTutorial({ datos, modelo, setVista, setFiltros, setEscena
     },
     {
       antes: () => { setVista('t1') },
-      popover: { title: '¡Listo!', description: 'Puedes repetir este recorrido cuando quieras desde el botón Tutorial.' },
+      popover: { title: '¡Listo!', description: 'Puedes repetir este recorrido cuando quieras desde el botón Ayuda.' },
     },
   ]
 

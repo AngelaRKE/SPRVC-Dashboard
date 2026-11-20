@@ -31,7 +31,8 @@ export default function App() {
   const [filtros, setFiltros] = useState({ seg: 'all', minimo: null, orden: 'pc' })
   const [abierto, setAbierto] = useState(null)           // cliente del panel de detalle
   const [acerca, setAcerca] = useState(false)            // panel Acerca de
-  const [ayuda, setAyuda] = useState(false)
+  const [menuAyuda, setMenuAyuda] = useState(false)      // menú desplegable del botón Ayuda
+  const [guia, setGuia] = useState(false)                // guía rápida (alternativa al tutorial)
   const [invitar, setInvitar] = useState(false)          // invitación al tutorial la primera vez
   const [tema, setTema] = useState(() => {
     try { return localStorage.getItem('sprvc-tema') || 'dark' } catch { return 'dark' }
@@ -110,8 +111,31 @@ export default function App() {
 
   function verTutorial() {
     setInvitar(false)
-    setAyuda(false)
+    setMenuAyuda(false)
+    setGuia(false)
     iniciarTutorial({ datos, modelo, setVista, setFiltros, setEscenario, setAbierto })
+  }
+
+  // El menú de Ayuda se cierra al hacer clic fuera de él o con Escape
+  const menuRef = useRef(null)
+  useEffect(() => {
+    if (!menuAyuda) return
+    const fuera = (e) => { if (!menuRef.current?.contains(e.target)) setMenuAyuda(false) }
+    const tecla = (e) => { if (e.key === 'Escape') setMenuAyuda(false) }
+    document.addEventListener('mousedown', fuera)
+    document.addEventListener('keydown', tecla)
+    return () => { document.removeEventListener('mousedown', fuera); document.removeEventListener('keydown', tecla) }
+  }, [menuAyuda])
+
+  function abrirGuia() {
+    setMenuAyuda(false)
+    setGuia(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function imprimir() {
+    setMenuAyuda(false)
+    setTimeout(() => window.print(), 50)
   }
 
   function noVerTutorial() {
@@ -149,14 +173,24 @@ export default function App() {
           <header className="topbar">
             <h1>{actual.titulo}</h1>
             <div className="acts">
-              {listo && (
-                <button className="ib" type="button" aria-label="Ver tutorial" onClick={verTutorial}>
-                  <Icono id="i-play" /><span className="lbl">Tutorial</span>
+              <div className="ayw" ref={menuRef}>
+                <button className="ib" type="button" aria-label="Ayuda" aria-haspopup="menu" aria-expanded={menuAyuda} onClick={() => setMenuAyuda((v) => !v)}>
+                  <Icono id="i-help" /><span className="lbl">Ayuda</span><Icono id="i-chevd" className="i chv-s" />
                 </button>
-              )}
-              <button className="ib" type="button" aria-expanded={ayuda} aria-controls="panel-ayuda" onClick={() => setAyuda((v) => !v)}>
-                <Icono id="i-help" /><span className="lbl">Ayuda</span>
-              </button>
+                {menuAyuda && (
+                  <div className="menu" role="menu">
+                    <button type="button" role="menuitem" disabled={!listo} onClick={verTutorial}>
+                      <Icono id="i-play" /><span><b>Ver tutorial</b><small>Recorrido guiado de 1 minuto</small></span>
+                    </button>
+                    <button type="button" role="menuitem" onClick={abrirGuia}>
+                      <Icono id="i-help" /><span><b>Guía rápida</b><small>Qué hace cada vista</small></span>
+                    </button>
+                    <button type="button" role="menuitem" onClick={imprimir}>
+                      <Icono id="i-print" /><span><b>Imprimir esta vista</b><small>O guardarla como PDF</small></span>
+                    </button>
+                  </div>
+                )}
+              </div>
               {listo && (
                 <button className="ib" type="button" aria-label="Acerca de" onClick={() => setAcerca(true)}>
                   <Icono id="i-info" /><span className="lbl">Acerca de</span>
@@ -170,20 +204,19 @@ export default function App() {
           </header>
 
           <div className="content">
-            {ayuda && (
-              <section className="help" id="panel-ayuda" aria-label="Cómo usar el tablero">
-                <h2>Cómo usar el tablero</h2>
-                <ol>
-                  <li><b>Tendencias predictivas:</b> consulte el ingreso esperado y pruebe escenarios de retención.</li>
-                  <li><b>Segmentos:</b> identifique qué grupos concentran clientes e ingresos.</li>
-                  <li><b>Clientes en riesgo:</b> filtre, abra un cliente y exporte la lista (CSV).</li>
-                  <li><b>Evaluar un cliente:</b> ingrese datos y obtenga una predicción del modelo.</li>
-                </ol>
-                <div style={{ marginTop: 12 }}>
-                  <button className="ib" type="button" onClick={() => window.print()}>
-                    <Icono id="i-print" />Imprimir esta vista
-                  </button>
+            {guia && (
+              <section className="help" aria-label="Guía rápida">
+                <div className="help-h">
+                  <h2>Guía rápida</h2>
+                  <button className="x" type="button" aria-label="Cerrar guía" onClick={() => setGuia(false)}><Icono id="i-x" /></button>
                 </div>
+                <ol>
+                  <li><b>Tendencias predictivas:</b> consulta el ingreso esperado y prueba escenarios de retención.</li>
+                  <li><b>Segmentos:</b> identifica qué grupos concentran clientes e ingresos.</li>
+                  <li><b>Clientes en riesgo:</b> filtra, abre un cliente y exporta la lista en CSV.</li>
+                  <li><b>Evaluar un cliente:</b> captura los datos de un cliente y obtén la predicción del modelo.</li>
+                </ol>
+                {listo && <button className="ib" type="button" onClick={verTutorial}><Icono id="i-play" />Ver el tutorial completo</button>}
               </section>
             )}
             {error && (
