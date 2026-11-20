@@ -1,6 +1,6 @@
 // Vista 4: formulario para evaluar un cliente nuevo. Manda los datos al backend (POST /api/predecir),
 // que llama a predecir() del equipo de datos, y muestra la respuesta del modelo.
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { predecir } from '../api'
 import { Icono } from './Iconos'
 
@@ -41,7 +41,47 @@ const PERFIL_MEDIANO = {
   lealtad: null,
 }
 
+// Ejemplos para cargar en el formulario (las tasas van en porcentaje)
+const EJEMPLOS = [
+  { id: 'riesgo', titulo: 'Cliente en riesgo', desc: 'Satisfacción baja y muchas quejas',
+    datos: { antiguedad_meses: 30, num_compras: 60, ticket_promedio_usd: 400, gasto_mensual_usd: 800, quejas: 12, devoluciones: 16, satisfaccion: 1.8, tasa_apertura_correos: 45, tasa_clics: 20, tasa_conversion: 10, canal: 'Online', dispositivo: 'Mobile', lealtad: 'Bronze' } },
+  { id: 'fiel', titulo: 'Cliente fiel', desc: 'Antiguo, satisfecho y con pocas quejas',
+    datos: { antiguedad_meses: 72, num_compras: 140, ticket_promedio_usd: 520, gasto_mensual_usd: 1100, quejas: 2, devoluciones: 3, satisfaccion: 4.6, tasa_apertura_correos: 60, tasa_clics: 30, tasa_conversion: 20, canal: 'In-Store', dispositivo: 'Desktop', lealtad: 'Diamond' } },
+  { id: 'mediano', titulo: 'Perfil mediano', desc: 'Valores típicos de la base de clientes', datos: PERFIL_MEDIANO },
+]
+
 const NIVEL_CLASE = { Bajo: 'lo', Medio: 'md', Alto: 'hi' }
+
+// Botón "Cargar ejemplo" con menú; se cierra al elegir, al hacer clic fuera o con Escape
+function MenuEjemplos({ cargar }) {
+  const [abierto, setAbierto] = useState(false)
+  const caja = useRef(null)
+  useEffect(() => {
+    if (!abierto) return
+    const fuera = (e) => { if (!caja.current?.contains(e.target)) setAbierto(false) }
+    const tecla = (e) => { if (e.key === 'Escape') setAbierto(false) }
+    document.addEventListener('mousedown', fuera)
+    document.addEventListener('keydown', tecla)
+    return () => { document.removeEventListener('mousedown', fuera); document.removeEventListener('keydown', tecla) }
+  }, [abierto])
+
+  return (
+    <div className="ayw" ref={caja}>
+      <button className="ib" type="button" aria-haspopup="menu" aria-expanded={abierto} onClick={() => setAbierto((v) => !v)}>
+        Cargar ejemplo<Icono id="i-chevd" className="i chv-s" />
+      </button>
+      {abierto && (
+        <div className="menu" role="menu">
+          {EJEMPLOS.map((x) => (
+            <button key={x.id} type="button" role="menuitem" onClick={() => { cargar(x.datos); setAbierto(false) }}>
+              <span><b>{x.titulo}</b><small>{x.desc}</small></span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 // Campo numérico con su unidad dentro de la caja
 function Numero({ id, label, unidad, paso, min, max, valor, cambiar }) {
@@ -74,8 +114,8 @@ export default function VistaEvaluar() {
   const [cargando, setCargando] = useState(false)
   const panel = useRef(null)
 
-  function cargarMediana() {
-    setForm(PERFIL_MEDIANO)
+  function cargarEjemplo(datos) {
+    setForm(datos)
     setRes(null)
   }
 
@@ -107,7 +147,7 @@ export default function VistaEvaluar() {
       <form className="c" onSubmit={enviar}>
         <div className="ch-h">
           <h2>Datos del cliente</h2>
-          <button className="ib" type="button" onClick={cargarMediana}>Cargar perfil mediano</button>
+          <MenuEjemplos cargar={cargarEjemplo} />
         </div>
 
         <fieldset className="grp-f">

@@ -554,3 +554,5 @@ td.fuerte{font-weight:700}
 .help-h h2{margin:0}
 .help ol{margin-bottom:14px}
 @media (max-width:640px){.topbar{position:relative}.ayw{position:static}.menu{left:16px;right:16px;top:calc(100% - 6px);min-width:0}}
+.ev .menu{min-width:280px}
+@media (max-width:640px){.ev .ch-h{position:relative}}
