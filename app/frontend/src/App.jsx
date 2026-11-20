@@ -9,6 +9,7 @@ import VistaRiesgo from './componentes/VistaRiesgo'
 import VistaEvaluar from './componentes/VistaEvaluar'
 import DetalleCliente from './componentes/DetalleCliente'
 import AcercaDe from './componentes/AcercaDe'
+import { CLAVE_VISTO, iniciarTutorial } from './tutorial'
 
 const VISTAS = [
   { id: 't1', titulo: 'Tendencias predictivas', corto: 'Tendencias', para: 'Dirección Comercial, Ventas' },
@@ -31,8 +32,7 @@ export default function App() {
   const [abierto, setAbierto] = useState(null)           // cliente del panel de detalle
   const [acerca, setAcerca] = useState(false)            // panel Acerca de
   const [ayuda, setAyuda] = useState(false)
-  const [recorrido, setRecorrido] = useState(null)
-  const [pasoRecorrido, setPasoRecorrido] = useState(0)
+  const [invitar, setInvitar] = useState(false)          // invitación al tutorial la primera vez
   const [tema, setTema] = useState(() => {
     try { return localStorage.getItem('sprvc-tema') || 'dark' } catch { return 'dark' }
   })
@@ -55,35 +55,6 @@ export default function App() {
     document.documentElement.dataset.theme = tema
     try { localStorage.setItem('sprvc-tema', tema) } catch { /* sin almacenamiento */ }
   }, [tema])
-
-  useEffect(() => {
-    if (!recorrido) return
-    const tecla = (e) => { if (e.key === 'Escape') setRecorrido(null) }
-    document.addEventListener('keydown', tecla)
-    return () => document.removeEventListener('keydown', tecla)
-  }, [recorrido])
-
-  useEffect(() => {
-    document.querySelectorAll('.tour-hl').forEach((x) => x.classList.remove('tour-hl'))
-    if (!recorrido) return
-    const objetivo = [
-      null,
-      '.tool',
-      '.tw',
-      '.dr',
-      '.btn',
-      '#scard',
-      null,
-    ][pasoRecorrido]
-    if (!objetivo) return
-    const elemento = document.querySelector(objetivo)
-    if (elemento) {
-      elemento.classList.add('tour-hl')
-      if (window.getComputedStyle(elemento).position !== 'fixed') {
-        setTimeout(() => elemento.scrollIntoView({ block: 'center', behavior: 'smooth' }), 80)
-      }
-    }
-  }, [recorrido, pasoRecorrido, vista, abierto])
 
   // Al cambiar de vista se regresa al inicio de la página
   useEffect(() => {
@@ -131,90 +102,23 @@ export default function App() {
 
   const props = { datos, modelo, f, escenario, estrella, abrir: setAbierto }
 
-  const terminarRecorrido = useCallback(() => {
-    setRecorrido(null)
-    setPasoRecorrido(0)
-    setEscenario(0)
-    setFiltros((x) => ({ ...x, seg: 'all', minimo: modelo ? Math.round(modelo.umbral * 100) : 50, orden: 'pc' }))
-    setAbierto(null)
-    setVista('t1')
-  }, [modelo])
-
-  const abrirRecorrido = () => {
-    setPasoRecorrido(0)
-    setRecorrido(true)
-  }
-
-  const avanzarRecorrido = () => {
-    const ultimo = 6
-    if (pasoRecorrido >= ultimo) { terminarRecorrido(); return }
-    setPasoRecorrido((x) => x + 1)
-  }
-
-  const pasosRecorrido = [
-    {
-      titulo: 'Ejemplo de uso del dashboard',
-      texto: 'La gerente de Marketing abre el dashboard antes de planear una campaña. Los 50,000 clientes reales ya están calificados.',
-    },
-    {
-      titulo: 'Entra a “Clientes en riesgo”',
-      texto: `Selecciona todos los segmentos y usa el umbral operativo del modelo: ${modelo ? Math.round(modelo.umbral * 100) : 56}%.`,
-    },
-    {
-      titulo: 'Revisa la lista priorizada',
-      texto: 'La lista puede ordenarse por ingreso en juego, probabilidad de abandono o CLV a 12 meses.',
-    },
-    {
-      titulo: 'Abre un cliente de la lista',
-      texto: 'El panel muestra su riesgo, variables principales, CLV estimado e instrumentos de retención aplicables.',
-    },
-    {
-      titulo: 'Exporta la lista',
-      texto: 'El botón CSV exporta todos los clientes que cumplen los filtros, no solamente los que aparecen en la página.',
-    },
-    {
-      titulo: 'Estima el efecto de una campaña',
-      texto: 'En Tendencias puedes aplicar una reducción del 15% al riesgo y ver el ingreso esperado protegido.',
-    },
-    {
-      titulo: 'Fin del recorrido',
-      texto: 'Al salir, el escenario se quita y vuelven los filtros generales para comenzar una nueva revisión.',
-    },
-  ]
-
+  // La primera vez que se abre el dashboard se invita a ver el tutorial
   useEffect(() => {
-    if (!recorrido || !datos || !modelo) return
+    if (!listo) return
+    try { if (!localStorage.getItem(CLAVE_VISTO)) setInvitar(true) } catch { /* sin almacenamiento */ }
+  }, [listo])
 
-    if (pasoRecorrido === 0) {
-      setVista('t1')
-      setEscenario(0)
-      setFiltros((x) => ({ ...x, seg: 'all', minimo: Math.round(modelo.umbral * 100), orden: 'pc' }))
-      setAbierto(null)
-    }
-    if (pasoRecorrido === 1) {
-      setVista('t3')
-      setFiltros((x) => ({ ...x, seg: 'all', minimo: Math.round(modelo.umbral * 100), orden: 'pc' }))
-      setAbierto(null)
-    }
-    if (pasoRecorrido === 2) setVista('t3')
-    if (pasoRecorrido === 3) {
-      setVista('t3')
-      setFiltros((x) => ({ ...x, minimo: Math.round(modelo.umbral * 100), orden: 'pc' }))
-      const candidato = datos.clientes
-        .filter((c) => c.p * f >= modelo.umbral)
-        .sort((a, b) => (b.p * b.g) - (a.p * a.g))[0]
-      if (candidato) setAbierto(candidato)
-    }
-    if (pasoRecorrido === 4) {
-      setAbierto(null)
-      setVista('t3')
-    }
-    if (pasoRecorrido === 5) {
-      setVista('t1')
-      setEscenario(15)
-    }
-    if (pasoRecorrido === 6) setVista('t1')
-  }, [recorrido, pasoRecorrido, datos, modelo, f])
+  function verTutorial() {
+    setInvitar(false)
+    setAyuda(false)
+    iniciarTutorial({ datos, modelo, setVista, setFiltros, setEscenario, setAbierto })
+  }
+
+  function noVerTutorial() {
+    setInvitar(false)
+    try { localStorage.setItem(CLAVE_VISTO, '1') } catch { /* sin almacenamiento */ }
+  }
+
 
   return (
     <>
@@ -246,8 +150,8 @@ export default function App() {
             <h1>{actual.titulo}</h1>
             <div className="acts">
               {listo && (
-                <button className="ib tourb" type="button" aria-label="Ver recorrido del ejemplo de uso" onClick={abrirRecorrido}>
-                  <Icono id="i-play" /><span className="lbl">Ver ejemplo</span>
+                <button className="ib" type="button" aria-label="Ver tutorial" onClick={verTutorial}>
+                  <Icono id="i-play" /><span className="lbl">Tutorial</span>
                 </button>
               )}
               <button className="ib" type="button" aria-expanded={ayuda} aria-controls="panel-ayuda" onClick={() => setAyuda((v) => !v)}>
@@ -312,25 +216,15 @@ export default function App() {
       {acerca && <AcercaDe cerrar={cerrarAcerca} datos={datos} modelo={modelo} msCarga={msCarga} />}
       {abierto && <DetalleCliente cliente={abierto} cerrar={cerrarDetalle} {...props} />}
       <div className="tip" ref={tipRef} role="tooltip" hidden />
-      {recorrido && (
-        <>
-          <div className="tour-ov" aria-hidden="true" />
-          <section className={`tour ${pasoRecorrido === 3 || pasoRecorrido === 5 ? 'tour-left' : ''}`} role="dialog" aria-modal="true" aria-labelledby="titulo-recorrido">
-            <div className="tc">Paso {pasoRecorrido + 1} de {pasosRecorrido.length}</div>
-            <h3 id="titulo-recorrido">{pasosRecorrido[pasoRecorrido].titulo}</h3>
-            <p>{pasosRecorrido[pasoRecorrido].texto}</p>
-            <div className="tb">
-              <div className="dots" aria-hidden="true">
-                {pasosRecorrido.map((_, i) => <i key={i} className={i === pasoRecorrido ? 'on' : ''} />)}
-              </div>
-              <div className="tbn">
-                <button type="button" onClick={terminarRecorrido}>Salir</button>
-                <button type="button" disabled={pasoRecorrido === 0} onClick={() => setPasoRecorrido((x) => Math.max(0, x - 1))}>Anterior</button>
-                <button type="button" className="pr" onClick={avanzarRecorrido}>{pasoRecorrido === pasosRecorrido.length - 1 ? 'Terminar' : 'Siguiente'}</button>
-              </div>
-            </div>
-          </section>
-        </>
+      {invitar && (
+        <aside className="invita" role="dialog" aria-label="Invitación al tutorial">
+          <b>¿Primera vez aquí?</b>
+          <p>Te mostramos en un minuto cómo usar el dashboard.</p>
+          <div>
+            <button className="btn" type="button" onClick={verTutorial}><Icono id="i-play" />Ver tutorial</button>
+            <button className="ib" type="button" onClick={noVerTutorial}>Ahora no</button>
+          </div>
+        </aside>
       )}
     </>
   )
